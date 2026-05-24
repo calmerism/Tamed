@@ -82,7 +82,7 @@ constructor(
         )
 
     companion object {
-        const val PREVIEW_SIZE = 3
+        const val PREVIEW_SIZE = 20
     }
 }
 
