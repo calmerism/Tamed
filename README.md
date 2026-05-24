@@ -4,15 +4,27 @@
   <p>A beautiful YouTube Music client for Android with two flavors: <b>Stable</b> and <b>Lossless (Experimental)</b></p>
   <img alt="Android" src="https://img.shields.io/badge/Android-8.0%2B-3DDC84?style=flat&logo=android&logoColor=white" />
   <img alt="Kotlin" src="https://img.shields.io/badge/Kotlin-2.3-7F52FF?style=flat&logo=kotlin&logoColor=white" />
+  <img alt="Version" src="https://img.shields.io/badge/Version-0.0.6-FF9900?style=flat" />
   <img alt="License" src="https://img.shields.io/github/license/calmerism/Tamed?style=flat" />
 </div>
 
 ## Two Applications
 
-This repository contains two parallel applications that serve different needs:
+This repository contains two parallel applications that serve different needs, both hosted side-by-side in a unified monorepo structure:
 
-1. **Tamed (Stable)** - The core, stable application focused on reliability, streaming, and beautiful UI.
-2. **Tamed (Lossless)** - An experimental branch exploring lossless audio capabilities and unique download structures.
+1. **Tamed (Stable) `v0.0.6`** - The core application focused on reliability, streaming, and beautiful UI.
+2. **Tamed (Lossless) `v0.0.6.1`** - An experimental branch exploring lossless audio capabilities and unique download structures.
+
+---
+
+## 🚀 Recent Updates (v0.0.6 & v0.0.6.1)
+
+- **High-Res Artwork Fixes**: Rewrote the YouTube thumbnail fetching logic to ensure the highest quality artwork is always displayed. Fixed pixelated album art in the media player background, Now Playing screen, and Android system notifications by strictly preventing Coil downsampling.
+- **Canvas Squeeze Fix**: Completely resolved the video squeeze issue for Apple Music Canvas backgrounds. The player now dynamically responds to video size changes, correctly calculates aspect ratios on the fly, and uses `SCALE_TO_FIT_WITH_CROPPING` for a flawless full-screen experience.
+- **Download Indicators**: Added a robust fallback mechanism for download badges in lists and grids so you can actually see what songs are saved locally without relying on live `DownloadManager` states.
+- **Streamlined Build System**: Removed redundant ABI splits. The project now generates a single, clean **Universal APK** that works on all Android architectures out of the box.
+
+---
 
 ## Requirements
 
@@ -26,17 +38,23 @@ This repository contains two parallel applications that serve different needs:
 ```bash
 git clone https://github.com/calmerism/Tamed.git
 cd Tamed
-
-# Build the Stable version:
-cd "Tamed (Stable)"
-./gradlew assembleUniversalRelease
-
-# Or build the Lossless version:
-cd "../Tamed (Experimental)"
-./gradlew assembleUniversalRelease
 ```
 
-The APK will be output to `app/build/outputs/apk/universal/release/app-universal-release.apk` inside the respective folder.
+### Build the Stable Version:
+```bash
+cd "Tamed (Stable)"
+./gradlew buildReleaseApk
+```
+*Output:* `Tamed (Stable)/release/Tamed.apk`
+
+### Build the Lossless Version:
+```bash
+cd "Tamed (Experimental)"
+./gradlew buildReleaseApk
+```
+*Output:* `Tamed (Experimental)/release/Tamed (Lossless).apk`
+
+---
 
 ## Tech Stack
 
