@@ -1,0 +1,9 @@
+IosApp/
+codex/
+graphify-out/
+.DS_Store
+.idea/
+*.iml
+local.properties
+.gradle/
+build/
