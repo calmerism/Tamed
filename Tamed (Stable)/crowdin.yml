@@ -1,0 +1,5 @@
+files:
+  - source: /app/src/main/res/values/strings.xml
+    translation: /app/src/main/res/values-%android_code%/strings.xml
+  - source: /app/src/main/res/values/tamed_strings.xml
+    translation: /app/src/main/res/values-%android_code%/tamed_strings.xml

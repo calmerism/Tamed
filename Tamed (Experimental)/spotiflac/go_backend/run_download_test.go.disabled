@@ -1,0 +1,31 @@
+package gobackend
+
+import (
+	"fmt"
+	"encoding/json"
+	"testing"
+)
+
+func TestMyDownload(t *testing.T) {
+	req := map[string]interface{}{
+		"service": "tidal",
+		"track_name": "The Less I Know The Better",
+		"artist_name": "Tame Impala",
+		"album_name": "Currents",
+		"output_dir": "./test_output",
+		"filename_format": "{album_artist}/{album}/{tracknumber}. {title}",
+		"quality": "LOSSLESS",
+		"embed_metadata": true,
+		"embed_lyrics": true,
+		"embed_max_quality_cover": true,
+	}
+
+	reqBytes, _ := json.Marshal(req)
+	
+	resp, err := DownloadTrack(string(reqBytes))
+	if err != nil {
+		t.Fatalf("Error: %v", err)
+	}
+	
+	fmt.Println("Response:", resp)
+}
