@@ -361,3 +361,14 @@ configurations.configureEach {
         "androidx.compose.animation:animation-graphics:${libs.versions.compose.get()}",
     )
 }
+
+tasks.register<Copy>("buildReleaseApk") {
+    group = "build"
+    description = "Builds the universal release APK and renames it to Tamed (Lossless).apk"
+    dependsOn("assembleUniversalRelease")
+    
+    from(layout.buildDirectory.dir("outputs/apk/universal/release"))
+    include("app-universal-release.apk")
+    into(rootProject.projectDir.resolve("release"))
+    rename { "Tamed (Lossless).apk" }
+}

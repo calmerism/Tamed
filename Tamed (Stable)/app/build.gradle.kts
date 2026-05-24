@@ -165,6 +165,8 @@ android {
     }
 }
 
+
+
 kotlin {
     jvmToolchain(21)
 }
@@ -286,4 +288,15 @@ configurations.configureEach {
         "androidx.compose.ui:ui-tooling:${libs.versions.compose.get()}",
         "androidx.compose.animation:animation-graphics:${libs.versions.compose.get()}",
     )
+}
+
+tasks.register<Copy>("buildReleaseApk") {
+    group = "build"
+    description = "Builds the universal release APK and renames it to Tamed.apk"
+    dependsOn("assembleUniversalRelease")
+    
+    from(layout.buildDirectory.dir("outputs/apk/universal/release"))
+    include("app-universal-release.apk")
+    into(rootProject.projectDir.resolve("release"))
+    rename { "Tamed.apk" }
 }
