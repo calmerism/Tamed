@@ -13,7 +13,7 @@
 This repository contains two parallel applications that serve different needs, both hosted side-by-side in a unified monorepo structure:
 
 1. **Tamed (Stable) `v0.0.6`** - The core application focused on reliability, streaming, and beautiful UI.
-2. **Tamed (Lossless) `v0.0.6.1`** - An experimental branch exploring lossless audio capabilities and unique download structures.
+2. **Tamed (Lossless) `v0.0.6.1`** - An experimental branch exploring lossless audio capabilities and unique download structures. Please note that this version is highly experimental and not fully stable; for example, lossless songs can load slowly because the app performs complex real-time search, matching, and high-fidelity audio resolution under the hood.
 
 ---
 

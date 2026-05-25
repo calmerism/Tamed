@@ -61,9 +61,9 @@ fun LosslessDownloadSheet(
     onStart: (SpotiFlacProvider, SpotiFlacQuality) -> Unit,
 ) {
     val qualities = remember { SpotiFlacQuality.all }
-    var selectedProvider by remember { mutableStateOf(SpotiFlacProvider.TIDAL) }
+    var selectedProvider by remember { mutableStateOf(SpotiFlacProvider.QOBUZ) }
     var selectedQuality by remember { mutableStateOf(qualities.first()) }
-    var useYouTubeDownload by remember(enableYouTubeDownload) { mutableStateOf(enableYouTubeDownload) }
+    var useYouTubeDownload by remember { mutableStateOf(false) }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,

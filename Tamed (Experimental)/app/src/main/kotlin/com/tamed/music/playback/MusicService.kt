@@ -323,7 +323,7 @@ class MusicService :
     private val losslessStreamingProvider by enumPreference(
         this,
         LosslessStreamingProviderKey,
-        LosslessStreamingProvider.OFF
+        LosslessStreamingProvider.QOBUZ
     )
     private val losslessStreamingQuality by enumPreference(
         this,
@@ -740,8 +740,8 @@ class MusicService :
             .setBufferDurationsMs(
                 30000, // minBufferMs
                 60000, // maxBufferMs
-                5000,  // bufferForPlaybackMs
-                5000   // bufferForPlaybackAfterRebufferMs
+                1000,  // bufferForPlaybackMs (1 second for snappy start)
+                1500   // bufferForPlaybackAfterRebufferMs (1.5 seconds)
             )
             .build()
 

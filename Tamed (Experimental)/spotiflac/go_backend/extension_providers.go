@@ -1070,36 +1070,62 @@ func (m *extensionManager) SearchTracksWithMetadataProviders(query string, limit
 		orderedProviderIDs = append(orderedProviderIDs, remainingIDs...)
 	}
 
+	// Fan-out: search all providers concurrently
+	type searchResult struct {
+		providerID string
+		tracks     []ExtTrackMetadata
+		err        error
+	}
+	ch := make(chan searchResult, len(orderedProviderIDs))
+
+	for _, providerID := range orderedProviderIDs {
+		go func(pID string) {
+			var (
+				providerTracks []ExtTrackMetadata
+				err            error
+			)
+
+			if isBuiltInProvider(pID) {
+				providerTracks, err = searchBuiltInMetadataTracksFunc(pID, query, limit)
+			} else {
+				if !includeExtensions {
+					ch <- searchResult{providerID: pID}
+					return
+				}
+				provider := extensionProviders[pID]
+				if provider == nil {
+					ch <- searchResult{providerID: pID}
+					return
+				}
+				var result *ExtSearchResult
+				result, err = provider.SearchTracks(query, limit)
+				if result != nil {
+					providerTracks = result.Tracks
+				}
+			}
+
+			ch <- searchResult{providerID: pID, tracks: providerTracks, err: err}
+		}(providerID)
+	}
+
+	// Gather all results into a map
+	resultsMap := make(map[string][]ExtTrackMetadata, len(orderedProviderIDs))
+	for i := 0; i < len(orderedProviderIDs); i++ {
+		res := <-ch
+		if res.err != nil {
+			GoLog("[MetadataSearch] Search error from %s: %v\n", res.providerID, res.err)
+			continue
+		}
+		if len(res.tracks) > 0 {
+			resultsMap[res.providerID] = res.tracks
+		}
+	}
+
+	// Merge results preserving provider priority order, with deduplication
 	tracks := make([]ExtTrackMetadata, 0, limit)
 	seenTracks := make(map[string]struct{})
 	for _, providerID := range orderedProviderIDs {
-		var (
-			providerTracks []ExtTrackMetadata
-			err            error
-		)
-
-		if isBuiltInProvider(providerID) {
-			providerTracks, err = searchBuiltInMetadataTracksFunc(providerID, query, limit)
-		} else {
-			if !includeExtensions {
-				continue
-			}
-			provider := extensionProviders[providerID]
-			if provider == nil {
-				continue
-			}
-			var result *ExtSearchResult
-			result, err = provider.SearchTracks(query, limit)
-			if result != nil {
-				providerTracks = result.Tracks
-			}
-		}
-
-		if err != nil {
-			GoLog("[MetadataSearch] Search error from %s: %v\n", providerID, err)
-			continue
-		}
-
+		providerTracks := resultsMap[providerID]
 		for _, track := range providerTracks {
 			key := metadataTrackDedupKey(track)
 			if key == "" {

@@ -99,7 +99,7 @@ fun PlayerSettings(
     )
     val (losslessStreamingProvider, onLosslessStreamingProviderChange) = rememberEnumPreference(
         LosslessStreamingProviderKey,
-        defaultValue = LosslessStreamingProvider.OFF
+        defaultValue = LosslessStreamingProvider.QOBUZ
     )
     val (losslessStreamingQuality, onLosslessStreamingQualityChange) = rememberEnumPreference(
         LosslessStreamingQualityKey,

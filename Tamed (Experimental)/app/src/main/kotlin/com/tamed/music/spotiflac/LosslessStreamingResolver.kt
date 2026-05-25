@@ -17,6 +17,9 @@ import java.util.Locale
 object LosslessStreamingResolver {
     private const val TAG = "LosslessStreamResolver"
 
+    /** In-memory cache of resolved metadata hints, keyed by "mediaId:providerName". */
+    private val metadataHintCache = java.util.concurrent.ConcurrentHashMap<String, SpotiFlacDownloader.ResolvedTrackMetadata>()
+
     data class ResolvedStream(
         val service: String,
         val url: String,
@@ -131,7 +134,14 @@ object LosslessStreamingResolver {
 
         Log.d(TAG, "Resolving: title='$title', artists=${artists.joinToString()}, provider=${provider.name}, quality=${quality.name}")
 
-        val metadataHint =
+        // Check in-memory cache first — instant return for replayed songs
+        val cacheKey = "${mediaMetadata.id}:${provider.name}"
+        val cachedHint = metadataHintCache[cacheKey]
+
+        val metadataHint = if (cachedHint != null) {
+            Log.d(TAG, "Cache HIT for '$cacheKey' — skipping network metadata search")
+            cachedHint
+        } else {
             SpotiFlacDownloader.resolveTrackMetadataHint(
                 backend = backend,
                 title = title,
@@ -139,7 +149,11 @@ object LosslessStreamingResolver {
                 albumTitle = mediaMetadata.album?.title.orEmpty(),
                 durationSeconds = mediaMetadata.duration,
                 preferredProvider = SpotiFlacProvider.QOBUZ,
-            )
+            )?.also {
+                metadataHintCache[cacheKey] = it
+                Log.d(TAG, "Cache MISS for '$cacheKey' — stored resolved hint")
+            }
+        }
 
         if (metadataHint != null) {
             Log.d(TAG, "Metadata hint: name='${metadataHint.name}', qobuzId='${metadataHint.qobuzId}', isrc='${metadataHint.isrc}'")

@@ -42,8 +42,9 @@ fun ArtistVideo(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
 ) {
-    val context = LocalContext.current
+      val context = LocalContext.current
     var isVideoReady by remember(videoUrl) { mutableStateOf(false) }
+    var videoAspectRatio by remember(videoUrl) { mutableStateOf(16f / 9f) }
 
     val okHttpClient = remember { OkHttpClient.Builder().build() }
     val mediaSourceFactory =
@@ -79,6 +80,12 @@ fun ArtistVideo(
             object : Player.Listener {
                 override fun onRenderedFirstFrame() {
                     isVideoReady = true
+                }
+
+                override fun onVideoSizeChanged(videoSize: androidx.media3.common.VideoSize) {
+                    if (videoSize.width > 0 && videoSize.height > 0) {
+                        videoAspectRatio = videoSize.width.toFloat() / videoSize.height.toFloat()
+                    }
                 }
             }
         exoPlayer.addListener(listener)
@@ -138,6 +145,9 @@ fun ArtistVideo(
                     exoPlayer.setVideoTextureView(textureView)
                     setBackgroundColor(android.graphics.Color.TRANSPARENT)
                 }
+            },
+            update = { aspectRatioFrameLayout ->
+                aspectRatioFrameLayout.setAspectRatio(videoAspectRatio)
             },
             modifier = Modifier
                 .matchParentSize()

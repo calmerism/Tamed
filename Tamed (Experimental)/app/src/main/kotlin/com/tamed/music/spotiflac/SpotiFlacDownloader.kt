@@ -575,7 +575,7 @@ object SpotiFlacDownloader {
             ).filter { it.isNotBlank() }
 
         val candidates = LinkedHashMap<String, ResolvedTrackMetadata>()
-        queries.forEach { query ->
+        for (query in queries) {
             runCatching { JSONArray(backend.searchTracksWithMetadataProvidersJSON(query, 12, true)) }
                 .getOrNull()
                 ?.let { results ->
@@ -589,6 +589,23 @@ object SpotiFlacDownloader {
                         }
                     }
                 }
+
+            if (candidates.isNotEmpty()) {
+                val bestScore = candidates.values.maxOf { candidate ->
+                    scoreMetadataCandidate(
+                        candidate = candidate,
+                        title = title,
+                        artists = artists,
+                        albumTitle = albumTitle,
+                        durationSeconds = durationSeconds,
+                        preferredProvider = preferredProvider,
+                    )
+                }
+                if (bestScore >= 120) {
+                    Log.d(TAG, "resolveTrackMetadataHint: Found high confidence match (score=$bestScore) for query '$query'. Stopping search.")
+                    break
+                }
+            }
         }
 
         val scoredCandidates =
