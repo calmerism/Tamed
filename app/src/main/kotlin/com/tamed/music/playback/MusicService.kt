@@ -4768,7 +4768,7 @@ class MusicService :
         try { DiscordPresenceManager.stop() } catch (_: Exception) {}
         lastPresenceToken = null
 
-        val stopMusicOnTaskClearEnabled = dataStore.get(StopMusicOnTaskClearKey, false)
+        val stopMusicOnTaskClearEnabled = dataStore.get(StopMusicOnTaskClearKey, true)
 
         try {
             if (dataStore.get(PersistentQueueKey, true) && player.mediaItemCount > 0) {

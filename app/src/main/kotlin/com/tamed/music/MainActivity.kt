@@ -373,7 +373,7 @@ class MainActivity : ComponentActivity() {
             if (!isFinishing) {
                 false
             } else {
-                dataStore.get(StopMusicOnTaskClearKey, false)
+                dataStore.get(StopMusicOnTaskClearKey, true)
             }
 
         if (shouldStopOnTaskClear) {
