@@ -242,7 +242,7 @@ jobs:
           else
             find "$RELEASE_DIR" -name "*-signed.apk" -o -name "*-unsigned-signed.apk" | xargs -I{} mv {} "$RELEASE_DIR/out/app-${{ matrix.abi }}-release.apk"
           fi
-- name: Upload Signed APK
+      - name: Upload Signed APK
         uses: actions/upload-artifact@v4
         with:
           name: app-${{ matrix.abi }}-release
@@ -281,7 +281,7 @@ jobs:
 
       - name: Build Changelog
         id: build_changelog
-        uses: mikepenz/release-changelog-builder-action@v6
+        uses: mikepenz/release-changelog-builder-action@v5
         with:
           mode: "COMMIT"
           fromTag: ${{ steps.changelog_range.outputs.from_ref }}
