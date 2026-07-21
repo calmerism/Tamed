@@ -1,65 +1,60 @@
 <div align="center">
+  <img src="TamedMask.png" width="128" alt="Tamed Logo" />
+  <h1>Tamed</h1>
+  <p>An elegant, modern Android music application featuring Apple Music-inspired ambient backdrops, time-synced lyrics, and high-fidelity lossless audio playback.</p>
 
-<img src="TamedMask.png" width="128" alt="Tamed Logo" /><br/>
-
-# Tamed
-
-**An elegant, modern Android music application featuring Apple Music-inspired ambient backdrops, time-synced lyrics, and high-fidelity lossless audio playback.**
-
-[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg?style=for-the-badge)](https://github.com/calmerism/Tamed/releases/tag/0.1.0)
-[![Platform](https://img.shields.io/badge/platform-Android-brightgreen.svg?style=for-the-badge)](https://developer.android.com/)
-[![License](https://img.shields.io/badge/license-GPL--3.0-orange.svg?style=for-the-badge)](LICENSE)
-[![Kotlin](https://img.shields.io/badge/kotlin-2.0-purple.svg?style=for-the-badge)](https://kotlinlang.org/)
+  <p>
+    <a href="https://github.com/calmerism/Tamed/releases/tag/0.1.0"><img src="https://img.shields.io/badge/version-0.1.0-blue.svg?style=for-the-badge" alt="Version" /></a>
+    <a href="https://developer.android.com/"><img src="https://img.shields.io/badge/platform-Android-brightgreen.svg?style=for-the-badge" alt="Platform" /></a>
+    <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0-orange.svg?style=for-the-badge" alt="License" /></a>
+    <a href="https://kotlinlang.org/"><img src="https://img.shields.io/badge/kotlin-2.0-purple.svg?style=for-the-badge" alt="Kotlin" /></a>
+  </p>
+</div>
 
 ---
 
-</div>
+## Overview
+
+Tamed is a modern music player for Android designed with a focus on visual aesthetics and audio fidelity. It offers dynamic user interface color extraction, synchronized lyric display, and native playback of lossless audio formats.
 
 ## Key Features
 
-### Apple Music Ambient Backdrop & Dynamic Glow
-- **Intelligent Palette Extraction**: Automatically extracts primary, secondary, and tertiary vibrant color accents directly from album artwork and artist media.
-- **Fluid Ambient Glow**: Seamless animated radial gradients that adapt smoothly behind player controls, album pages, and artist screens.
+### Ambient Visuals
+* **Palette Extraction**: Automatically extracts color profiles from album art to theme the interface dynamically.
+* **Animated Backdrops**: Renders smooth, fluid radial gradient animations behind player controls and content views.
 
-### Synchronized & Plain Lyrics
-- **Karaoke Time-Synced Lyrics**: Line-by-line and word-by-word synchronized scrolling powered by LRC and TTML formats with active phrase highlighting.
-- **Enhanced Plain Text Lyrics**: High-readability typography and layout matching the Karaoke design for unsynced tracks.
+### Synchronized Lyrics
+* **Time-Synced Display**: Support for line-by-line and word-by-word scrolling utilizing LRC and TTML formats.
+* **Plain Lyrics**: Clear, highly readable text presentation for tracks without timing metadata.
 
-### Lossless & Multi-Format Local Playback
-- **High-Resolution Lossless Support**: Native bit-perfect playback for **FLAC**, **AIFF**, **WAV**, **ALAC**, **APE**, **WavPack**, and **DSD**.
-- **Universal Local Format Compatibility**: Full support for **M4A**, **AAC**, **MP3**, **OGG**, **OPUS**, **WMA**, **MKV**, and **AMR**.
-- **Embedded Tag Parsing**: Reads ID3, Vorbis, and MP4 metadata directly from local media files.
+### High-Fidelity Audio Playback
+* **Lossless Formats**: Native support for FLAC, AIFF, WAV, ALAC, APE, WavPack, and DSD.
+* **Standard Formats**: Compatibility with M4A, AAC, MP3, OGG, OPUS, WMA, MKV, and AMR.
+* **Tag Metadata**: Automatic parsing of embedded ID3, Vorbis, and MP4 tags from local files.
 
-### Modern Jetpack Compose UI
-- Built with **Jetpack Compose** and **Material 3 Expressive Design System**.
-- Premium glassmorphism UI components, fluid player expand/collapse transitions, and custom animated shimmer placeholders.
-- Built-in equalizer band controls and audio normalization.
+### Interface
+* **Jetpack Compose**: Modern declarative UI built using Material 3 guidelines.
+* **Responsive Layouts**: Designed with smooth transitions, custom loading shimmers, and interactive elements.
 
----
+## Tech Stack
 
-## Tech Stack & Dependencies
+* **UI Framework**: Android Jetpack Compose, Material 3
+* **Audio Engine**: AndroidX Media3 (ExoPlayer) with MediaSession
+* **Image Loading**: Coil 3
+* **Color Processing**: Android Palette library
+* **Dependency Injection**: Hilt / Dagger
 
-- **UI Framework**: Android Jetpack Compose, Material 3 Expressive
-- **Media Engine**: AndroidX Media3 (ExoPlayer) with MediaSession
-- **Image & Color Processing**: Coil 3 & Android Palette
-- **Architecture**: Clean Architecture, Android Architecture Components (ViewModel, StateFlow, Coroutines)
-- **Dependency Injection**: Hilt / Dagger
+## Installation
 
----
+The latest pre-compiled ARM64 binary can be downloaded from the Releases page:
 
-## Download & Installation
+* **Package**: [Tamed.apk](https://github.com/calmerism/Tamed/releases/download/0.1.0/Tamed.apk)
+* **Architecture**: arm64-v8a
+* **Requirements**: Android 8.0 (API Level 26) or higher
 
-Download the latest ARM64 APK from the [Releases](https://github.com/calmerism/Tamed/releases/tag/0.1.0) section:
+## Build Instructions
 
-- **Filename**: `Tamed.apk`
-- **Architecture**: `arm64-v8a`
-- **Requires**: Android 8.0 (API Level 26) or higher
-
----
-
-## Building From Source
-
-To build **Tamed** locally:
+To build the project from source:
 
 1. Clone the repository:
    ```bash
@@ -67,16 +62,14 @@ To build **Tamed** locally:
    cd Tamed
    ```
 
-2. Build the ARM64 debug/release APK using Gradle:
+2. Build the release binary:
    ```bash
    ./gradlew :app:assembleArm64Release
    ```
 
-3. The compiled APK will be output to:
+3. The generated APK will be located at:
    `app/build/outputs/apk/arm64/release/Tamed.apk`
-
----
 
 ## License
 
-Distributed under the GPL-3.0 License. See `LICENSE` for details.
+This project is licensed under the GPL-3.0 License. See the `LICENSE` file for details.
