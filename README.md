@@ -11,30 +11,30 @@
   </p>
 </div>
 
-## Overview
+### Overview
 
 Tamed is a modern music player for Android designed with a focus on visual aesthetics and audio fidelity. It offers dynamic user interface color extraction, synchronized lyric display, and native playback of lossless audio formats.
 
-## Key Features
+### Key Features
 
-### Ambient Visuals
+#### Ambient Visuals
 * **Palette Extraction**: Automatically extracts color profiles from album art to theme the interface dynamically.
 * **Animated Backdrops**: Renders smooth, fluid radial gradient animations behind player controls and content views.
 
-### Synchronized Lyrics
+#### Synchronized Lyrics
 * **Time-Synced Display**: Support for line-by-line and word-by-word scrolling utilizing LRC and TTML formats.
 * **Plain Lyrics**: Clear, highly readable text presentation for tracks without timing metadata.
 
-### High-Fidelity Audio Playback
+#### High-Fidelity Audio Playback
 * **Lossless Formats**: Native support for FLAC, AIFF, WAV, ALAC, APE, WavPack, and DSD.
 * **Standard Formats**: Compatibility with M4A, AAC, MP3, OGG, OPUS, WMA, MKV, and AMR.
 * **Tag Metadata**: Automatic parsing of embedded ID3, Vorbis, and MP4 tags from local files.
 
-### Interface
+#### Interface
 * **Jetpack Compose**: Modern declarative UI built using Material 3 guidelines.
 * **Responsive Layouts**: Designed with smooth transitions, custom loading shimmers, and interactive elements.
 
-## Tech Stack
+### Tech Stack
 
 * **UI Framework**: Android Jetpack Compose, Material 3
 * **Audio Engine**: AndroidX Media3 (ExoPlayer) with MediaSession
@@ -42,7 +42,7 @@ Tamed is a modern music player for Android designed with a focus on visual aesth
 * **Color Processing**: Android Palette library
 * **Dependency Injection**: Hilt / Dagger
 
-## Installation
+### Installation
 
 The latest pre-compiled ARM64 binary can be downloaded from the Releases page:
 
@@ -50,7 +50,7 @@ The latest pre-compiled ARM64 binary can be downloaded from the Releases page:
 * **Architecture**: arm64-v8a
 * **Requirements**: Android 8.0 (API Level 26) or higher
 
-## Build Instructions
+### Build Instructions
 
 To build the project from source:
 
@@ -68,6 +68,6 @@ To build the project from source:
 3. The generated APK will be located at:
    `app/build/outputs/apk/arm64/release/Tamed.apk`
 
-## License
+### License
 
 This project is licensed under the GPL-3.0 License. See the `LICENSE` file for details.
