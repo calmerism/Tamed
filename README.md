@@ -1,7 +1,6 @@
 <div align="center">
   <h3>
-    <img src="TamedMask.png" width="128" alt="Tamed Logo" /><br/>
-    <font size="6">Tamed</font>
+    <img src="TamedMask.png" width="128" alt="Tamed Logo" align="middle" /> <font size="7">Tamed</font>
   </h3>
   <p>An elegant, modern Android music application featuring Apple Music-inspired ambient backdrops, time-synced lyrics, and high-fidelity lossless audio playback.</p>
 
