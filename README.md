@@ -11,8 +11,6 @@
   </p>
 </div>
 
----
-
 ## Overview
 
 Tamed is a modern music player for Android designed with a focus on visual aesthetics and audio fidelity. It offers dynamic user interface color extraction, synchronized lyric display, and native playback of lossless audio formats.
