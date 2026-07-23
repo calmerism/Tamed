@@ -23,6 +23,12 @@ import coil3.disk.directory
 import coil3.request.CachePolicy
 import coil3.request.allowHardware
 import coil3.request.crossfade
+import coil3.memory.MemoryCache
+import coil3.network.okhttp.OkHttpNetworkFetcherFactory
+import okhttp3.OkHttpClient
+import okhttp3.Dispatcher
+import okhttp3.ConnectionPool
+import java.util.concurrent.TimeUnit
 import com.tamed.music.constants.*
 import com.tamed.music.extensions.*
 import com.tamed.music.ui.screens.settings.ThemePalettes
@@ -248,7 +254,25 @@ class App : Application(), SingletonImageLoader.Factory {
             applicationScope.launch(Dispatchers.IO) { trimImageDiskCache(diskCache) }
         }
 
-        return ImageLoader.Builder(this)
+        val okHttpClient = OkHttpClient.Builder()
+            .dispatcher(Dispatcher().apply {
+                maxRequests = 64
+                maxRequestsPerHost = 32
+            })
+            .connectionPool(ConnectionPool(10, 2, TimeUnit.MINUTES))
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.SECONDS)
+            .build()
+
+        return ImageLoader.Builder(context)
+            .components {
+                add(OkHttpNetworkFetcherFactory(okHttpClient))
+            }
+            .memoryCache {
+                MemoryCache.Builder()
+                    .maxSizePercent(context, 0.25)
+                    .build()
+            }
             .crossfade(true)
             .allowHardware(Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
             .diskCache(diskCache)

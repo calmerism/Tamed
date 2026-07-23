@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.tamed.music.LocalPlayerConnection
+import com.tamed.music.LocalPlayerAwareWindowInsets
 import com.tamed.music.R
 import com.tamed.music.constants.CONTENT_TYPE_LIST
 import com.tamed.music.db.entities.Album
@@ -115,7 +116,10 @@ fun LocalSearchScreen(
 
         LazyColumn(
             state = lazyListState,
-            contentPadding = PaddingValues(top = 8.dp),
+            contentPadding = PaddingValues(
+                top = 8.dp,
+                bottom = LocalPlayerAwareWindowInsets.current.asPaddingValues().calculateBottomPadding()
+            ),
             modifier = Modifier.weight(1f),
         ) {
             result.map.forEach { (filter, items) ->

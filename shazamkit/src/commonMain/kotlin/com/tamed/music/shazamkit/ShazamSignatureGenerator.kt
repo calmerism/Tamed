@@ -14,8 +14,8 @@ data class ShazamSignature(
 )
 
 class ShazamSignatureGenerator(
-    private val maxTimeSeconds: Double = 3.1,
-    private val maxPeaks: Int = 255,
+    private val maxTimeSeconds: Double = 6.0,
+    private val maxPeaks: Int = 512,
 ) {
     private val pending = IntArrayList()
     private var processedSamples = 0

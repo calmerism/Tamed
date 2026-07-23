@@ -38,6 +38,7 @@ import androidx.navigation.NavController
 import com.tamed.music.innertube.models.*
 import com.tamed.music.LocalDatabase
 import com.tamed.music.LocalPlayerConnection
+import com.tamed.music.LocalPlayerAwareWindowInsets
 import com.tamed.music.R
 import com.tamed.music.extensions.togglePlayPause
 import com.tamed.music.models.toMediaMetadata
@@ -99,7 +100,7 @@ fun OnlineSearchScreen(
         state = lazyListState,
         contentPadding = PaddingValues(
             top = 8.dp,
-            bottom = WindowInsets.systemBars.only(WindowInsetsSides.Bottom).asPaddingValues().calculateBottomPadding()
+            bottom = LocalPlayerAwareWindowInsets.current.asPaddingValues().calculateBottomPadding()
         ),
         modifier = Modifier
             .fillMaxSize()

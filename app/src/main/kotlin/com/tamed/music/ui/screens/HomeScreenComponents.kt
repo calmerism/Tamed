@@ -189,7 +189,7 @@ fun QuickPicksSection(
         ) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(song.song.thumbnailUrl?.resize(1200, 1200))
+                    .data(song.song.thumbnailUrl?.resize(500, 500))
                     .crossfade(true)
                     .build(),
                 contentDescription = null,
@@ -468,8 +468,8 @@ fun SpeedDialTile(
         ) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(song.thumbnailUrl?.resize(1200, 1200))
-                    .size(1200, 1200)
+                    .data(song.thumbnailUrl?.resize(360, 360))
+                    .size(360, 360)
                     .diskCachePolicy(CachePolicy.ENABLED)
                     .memoryCachePolicy(CachePolicy.ENABLED)
                     .allowHardware(true)

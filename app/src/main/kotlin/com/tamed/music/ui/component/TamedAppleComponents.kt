@@ -469,6 +469,7 @@ fun MediaCard(
     square: Boolean = false,
     cardSize: Dp? = null,
     textBelow: Boolean = true,
+    imageSize: Int = 500,
 ) {
     val context = LocalContext.current
     val titleStyle = if (tall) {
@@ -526,7 +527,7 @@ fun MediaCard(
                 AsyncImage(
                     model = remember(imageUrl) {
                         ImageRequest.Builder(context)
-                            .data(imageUrl?.resize(800, 800))
+                            .data(imageUrl?.resize(imageSize, imageSize))
                             .crossfade(true)
                             .build()
                     },
@@ -606,7 +607,7 @@ fun MediaCard(
             AsyncImage(
                 model = remember(imageUrl) {
                     ImageRequest.Builder(context)
-                        .data(imageUrl?.resize(1200, 1200))
+                        .data(imageUrl?.resize(imageSize, imageSize))
                         .crossfade(true)
                         .build()
                 },

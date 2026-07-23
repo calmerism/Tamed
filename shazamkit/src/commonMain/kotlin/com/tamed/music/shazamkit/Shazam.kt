@@ -5,6 +5,7 @@ import com.tamed.music.shazamkit.models.ShazamRequestJson
 import com.tamed.music.shazamkit.models.ShazamResponseJson
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.statement.bodyAsText
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
@@ -46,16 +47,16 @@ object Shazam {
     private val requestQueue = ArrayDeque<PendingRequest>()
     private val resultCache = mutableMapOf<String, CachedResult>()
 
+    private val json = Json {
+        isLenient = true
+        ignoreUnknownKeys = true
+        encodeDefaults = true
+    }
+
     private val client by lazy {
         HttpClient {
             install(ContentNegotiation) {
-                json(
-                    Json {
-                        isLenient = true
-                        ignoreUnknownKeys = true
-                        encodeDefaults = true
-                    },
-                )
+                json(json)
             }
             expectSuccess = false
         }
@@ -262,6 +263,13 @@ object Shazam {
             setBody(request)
         }
 
+        val responseBody = try {
+            response.bodyAsText()
+        } catch (e: Exception) {
+            "Could not read body: ${e.message}"
+        }
+        println("[SHAZAM_DEBUG] Response status: ${response.status}, body: $responseBody")
+
         if (!response.status.isSuccess()) {
             when (val statusCode = response.status.value) {
                 429 -> throw Exception("Too many requests")
@@ -271,7 +279,13 @@ object Shazam {
             }
         }
 
-        val shazamResponse = response.body<ShazamResponseJson>()
+        val shazamResponse = try {
+            json.decodeFromString<ShazamResponseJson>(responseBody)
+        } catch (e: Exception) {
+            println("[SHAZAM_DEBUG] JSON decode failed: ${e.message}")
+            throw e
+        }
+
         return shazamResponse.toRecognitionResult()
             ?: throw Exception("No match found")
     }

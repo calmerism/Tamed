@@ -192,16 +192,7 @@ fun HomeScreen(
                 }
             }
 
-            // ─── Chips ───────────────────────────────────────────────────
-            if (!homePage?.chips.isNullOrEmpty()) {
-                item(key = "home_chips") {
-                    ChipsRow(
-                        chips = homePage?.chips.orEmpty().map { it to it.title },
-                        currentValue = selectedChip,
-                        onValueUpdate = { viewModel.toggleChip(it) },
-                    )
-                }
-            }
+
 
             // ─── Quick Picks ─────────────────────────────────────────────
             val qp = quickPicks
@@ -221,7 +212,7 @@ fun HomeScreen(
                         MediaCard(
                             title = song.title,
                             subtitle = song.artists.joinToString { it.name },
-                            imageUrl = song.thumbnailUrl?.replace(Regex("=w\\d+-h\\d+"), "=w540-h540"),
+                            imageUrl = song.thumbnailUrl?.replace(Regex("=w\\d+-h\\d+"), "=w360-h360-l90-rj"),
                             metadata = null,
                             tall = true,
                             cardSize = 320.dp,
@@ -290,7 +281,7 @@ fun HomeScreen(
                                 is Artist -> "Artist"
                                 else -> ""
                             },
-                            imageUrl = localItem.thumbnailUrl?.replace(Regex("=w\\d+-h\\d+"), "=w540-h540"),
+                            imageUrl = localItem.thumbnailUrl?.replace(Regex("=w\\d+-h\\d+"), "=w360-h360-l90-rj"),
                             metadata = null,
                             square = true,
                             cardSize = 220.dp,
@@ -325,7 +316,7 @@ fun HomeScreen(
                         MediaCard(
                             title = song.title,
                             subtitle = song.artists.joinToString { it.name },
-                            imageUrl = song.thumbnailUrl?.replace(Regex("=w\\d+-h\\d+"), "=w540-h540"),
+                            imageUrl = song.thumbnailUrl?.replace(Regex("=w\\d+-h\\d+"), "=w360-h360-l90-rj"),
                             metadata = null,
                             square = true,
                             cardSize = 220.dp,
@@ -366,7 +357,7 @@ fun HomeScreen(
                             contentPadding = PaddingValues(horizontal = 20.dp),
                         ) { ytItem ->
                             val highResThumbnail = remember(ytItem.thumbnail) {
-                                ytItem.thumbnail?.replace(Regex("=w\\d+-h\\d+.*$"), "=w544-h544-l90-rj")
+                                ytItem.thumbnail?.replace(Regex("=w\\d+-h\\d+.*$"), "=w360-h360-l90-rj")
                                     ?.replace("sqp", "maxresdefault")
                             }
                             
@@ -422,7 +413,7 @@ fun HomeScreen(
                             contentPadding = PaddingValues(horizontal = 20.dp),
                         ) { ytItem ->
                             val highResThumbnail = remember(ytItem.thumbnail) {
-                                ytItem.thumbnail?.replace(Regex("=w\\d+-h\\d+.*$"), "=w544-h544-l90-rj")
+                                ytItem.thumbnail?.replace(Regex("=w\\d+-h\\d+.*$"), "=w360-h360-l90-rj")
                                     ?.replace("sqp", "maxresdefault")
                             }
                             

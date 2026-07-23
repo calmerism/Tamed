@@ -225,7 +225,12 @@ fun TopSearch(
                 )
 
                 if (animationProgress > 0) {
-                    Column(Modifier.alpha(animationProgress)) {
+                    Column(
+                        modifier = Modifier
+                            .alpha(animationProgress)
+                            .weight(1f)
+                            .fillMaxWidth()
+                    ) {
                         // HorizontalDivider(color = colors.dividerColor)
                         content()
                     }

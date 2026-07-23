@@ -390,13 +390,21 @@ private suspend fun runRecognitionFlow(
     onHaptic()
     onState(MusicRecognitionState.Listening)
 
-    val samples =
+    val (samples, sampleRate) =
         withContext(Dispatchers.IO) {
             recordMicPcm16Mono(
                 sampleRateHz = 16000,
-                recordMs = 4200L,
-            ).first
+                recordMs = 8000L,
+            )
         }
+
+    println("[SHAZAM_DEBUG] Recorded ${samples.size} samples @ ${sampleRate}Hz")
+
+    // Check for silent audio (emulator / permission issue)
+    val maxAmplitude = samples.maxOrNull() ?: 0
+    if (maxAmplitude < 100) {
+        println("[SHAZAM_DEBUG] Audio appears silent (maxAmplitude=$maxAmplitude)")
+    }
 
     onState(MusicRecognitionState.Processing)
 
@@ -406,6 +414,8 @@ private suspend fun runRecognitionFlow(
                 feedPcm16Mono(samples)
             }.nextSignatureOrNull()
         }
+
+    println("[SHAZAM_DEBUG] Signature generated: ${signature != null}, sampleDurationMs=${signature?.sampleDurationMs}")
 
     if (signature == null) {
         onState(MusicRecognitionState.Error(strings.signatureFailed))
