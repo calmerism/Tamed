@@ -1802,8 +1802,8 @@ object FloatingTabBarDefaults {
      */
     @Composable
     fun colors(
-        backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
-        accessoryBackgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        backgroundColor: Color = if (MaterialTheme.colorScheme.surface.luminance() > 0.5f) MaterialTheme.colorScheme.surfaceContainerHigh else Color(0xFF141417),
+        accessoryBackgroundColor: Color = if (MaterialTheme.colorScheme.surface.luminance() > 0.5f) MaterialTheme.colorScheme.surfaceContainerHigh else Color(0xFF141417),
     ): FloatingTabBarColors = FloatingTabBarColors(
         backgroundColor = backgroundColor,
         accessoryBackgroundColor = accessoryBackgroundColor,

@@ -33,6 +33,7 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.FastOutLinearInEasing
@@ -1519,17 +1520,57 @@ class MainActivity : ComponentActivity() {
                                         else -> Screens.Home
                                     }.route,
                                     enterTransition = {
-                                         fadeIn(animationSpec = tween(durationMillis = 200, easing = LinearOutSlowInEasing))
-                                     },
-                                     exitTransition = {
-                                         fadeOut(animationSpec = tween(durationMillis = 180, easing = FastOutLinearInEasing))
-                                     },
-                                     popEnterTransition = {
-                                         fadeIn(animationSpec = tween(durationMillis = 200, easing = LinearOutSlowInEasing))
-                                     },
-                                     popExitTransition = {
-                                         fadeOut(animationSpec = tween(durationMillis = 180, easing = FastOutLinearInEasing))
-                                     },
+                                        val topLevelRoutes = setOf(Screens.Home.route, Screens.Library.route, Screens.Search.route)
+                                        val isTabSwitch = initialState.destination.route in topLevelRoutes && targetState.destination.route in topLevelRoutes
+                                        if (isTabSwitch) {
+                                            fadeIn(animationSpec = tween(300, easing = CubicBezierEasing(0.32f, 0.72f, 0f, 1f))) +
+                                            scaleIn(animationSpec = tween(300, easing = CubicBezierEasing(0.32f, 0.72f, 0f, 1f)), initialScale = 0.98f)
+                                        } else {
+                                            slideInHorizontally(
+                                                animationSpec = spring(dampingRatio = 0.92f, stiffness = 850f),
+                                                initialOffsetX = { fullWidth -> fullWidth }
+                                            ) + fadeIn(animationSpec = tween(320, easing = CubicBezierEasing(0.32f, 0.72f, 0f, 1f)), initialAlpha = 0.5f)
+                                        }
+                                    },
+                                    exitTransition = {
+                                        val topLevelRoutes = setOf(Screens.Home.route, Screens.Library.route, Screens.Search.route)
+                                        val isTabSwitch = initialState.destination.route in topLevelRoutes && targetState.destination.route in topLevelRoutes
+                                        if (isTabSwitch) {
+                                            fadeOut(animationSpec = tween(280, easing = CubicBezierEasing(0.32f, 0.72f, 0f, 1f)))
+                                        } else {
+                                            slideOutHorizontally(
+                                                animationSpec = spring(dampingRatio = 0.92f, stiffness = 850f),
+                                                targetOffsetX = { fullWidth -> -fullWidth / 3 }
+                                            ) + scaleOut(animationSpec = tween(320, easing = CubicBezierEasing(0.32f, 0.72f, 0f, 1f)), targetScale = 0.95f) +
+                                            fadeOut(animationSpec = tween(320, easing = CubicBezierEasing(0.32f, 0.72f, 0f, 1f)), targetAlpha = 0.6f)
+                                        }
+                                    },
+                                    popEnterTransition = {
+                                        val topLevelRoutes = setOf(Screens.Home.route, Screens.Library.route, Screens.Search.route)
+                                        val isTabSwitch = initialState.destination.route in topLevelRoutes && targetState.destination.route in topLevelRoutes
+                                        if (isTabSwitch) {
+                                            fadeIn(animationSpec = tween(300, easing = CubicBezierEasing(0.32f, 0.72f, 0f, 1f))) +
+                                            scaleIn(animationSpec = tween(300, easing = CubicBezierEasing(0.32f, 0.72f, 0f, 1f)), initialScale = 0.98f)
+                                        } else {
+                                            slideInHorizontally(
+                                                animationSpec = spring(dampingRatio = 0.92f, stiffness = 850f),
+                                                initialOffsetX = { fullWidth -> -fullWidth / 3 }
+                                            ) + scaleIn(animationSpec = tween(320, easing = CubicBezierEasing(0.32f, 0.72f, 0f, 1f)), initialScale = 0.95f) +
+                                            fadeIn(animationSpec = tween(320, easing = CubicBezierEasing(0.32f, 0.72f, 0f, 1f)), initialAlpha = 0.6f)
+                                        }
+                                    },
+                                    popExitTransition = {
+                                        val topLevelRoutes = setOf(Screens.Home.route, Screens.Library.route, Screens.Search.route)
+                                        val isTabSwitch = initialState.destination.route in topLevelRoutes && targetState.destination.route in topLevelRoutes
+                                        if (isTabSwitch) {
+                                            fadeOut(animationSpec = tween(280, easing = CubicBezierEasing(0.32f, 0.72f, 0f, 1f)))
+                                        } else {
+                                            slideOutHorizontally(
+                                                animationSpec = spring(dampingRatio = 0.92f, stiffness = 850f),
+                                                targetOffsetX = { fullWidth -> fullWidth }
+                                            ) + fadeOut(animationSpec = tween(320, easing = CubicBezierEasing(0.32f, 0.72f, 0f, 1f)), targetAlpha = 0.5f)
+                                        }
+                                    },
                                     modifier = Modifier
                                         .layerBackdrop(appBackdrop)
                                         .nestedScroll(
@@ -1633,9 +1674,9 @@ class MainActivity : ComponentActivity() {
                                                      .align(Alignment.BottomCenter)
                                                      .widthIn(max = 500.dp)
                                                      .padding(horizontal = 16.dp)
-                                                     .padding(bottom = bottomInset + 8.dp)
+                                                     .padding(bottom = bottomInset + 28.dp)
                                                      .graphicsLayer {
-                                                         val bottomMarginPx = with(density) { (bottomInset + 8.dp).toPx() }
+                                                         val bottomMarginPx = with(density) { (bottomInset + 28.dp).toPx() }
                                                          val navBarHeightPx = with(density) { bottomNavigationBarHeight.toPx() }
                                                          val navVisibleHeightPx = with(density) { navVisibleHeight.toPx() }
                                                          val hiddenOffset = size.height + bottomMarginPx

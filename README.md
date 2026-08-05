@@ -1,9 +1,9 @@
 <div align="center">
   <img src="TamedMask.png" width="160" alt="Tamed Logo" />
-  <p>An elegant, modern Android music application featuring Apple Music-inspired ambient backdrops, time-synced lyrics, and high-fidelity lossless audio playback.</p>
+  <p>An elegant, modern Android music application featuring dynamic ambient backdrops, time-synced lyrics, and high-fidelity lossless audio playback.</p>
 
   <p>
-    <a href="https://github.com/calmerism/Tamed/releases/tag/0.1.0"><img src="https://img.shields.io/badge/version-0.1.0-blue.svg?style=for-the-badge" alt="Version" /></a>
+    <a href="https://github.com/calmerism/Tamed/releases/tag/v0.1.1"><img src="https://img.shields.io/badge/version-0.1.1-blue.svg?style=for-the-badge" alt="Version" /></a>
     <a href="https://developer.android.com/"><img src="https://img.shields.io/badge/platform-Android-brightgreen.svg?style=for-the-badge" alt="Platform" /></a>
     <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0-orange.svg?style=for-the-badge" alt="License" /></a>
     <a href="https://kotlinlang.org/"><img src="https://img.shields.io/badge/kotlin-2.0-purple.svg?style=for-the-badge" alt="Kotlin" /></a>
@@ -45,7 +45,7 @@ Tamed is a modern music player for Android designed with a focus on visual aesth
 
 The latest pre-compiled ARM64 binary can be downloaded from the Releases page:
 
-* **Package**: [Tamed.apk](https://github.com/calmerism/Tamed/releases/download/0.1.0/Tamed.apk)
+* **Package**: [Tamed.apk](https://github.com/calmerism/Tamed/releases/download/v0.1.1/Tamed.apk)
 * **Architecture**: arm64-v8a
 * **Requirements**: Android 8.0 (API Level 26) or higher
 

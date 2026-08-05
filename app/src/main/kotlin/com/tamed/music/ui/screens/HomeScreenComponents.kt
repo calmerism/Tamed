@@ -149,12 +149,12 @@ fun QuickPicksSection(
 
     HorizontalCenteredHeroCarousel(
         state = rememberCarouselState { distinctQuickPicks.size },
-        maxItemWidth = 250.dp,
+        maxItemWidth = 190.dp,
         itemSpacing = 8.dp,
         contentPadding = PaddingValues(horizontal = 16.dp),
         modifier = modifier
             .fillMaxWidth()
-            .height(290.dp)
+            .height(190.dp)
     ) { index ->
         val song = distinctQuickPicks[index]
         val isActive = song.id == mediaMetadata?.id

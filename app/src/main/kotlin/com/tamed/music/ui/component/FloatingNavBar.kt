@@ -230,12 +230,13 @@ private fun AppFloatingNavBarChrome(
     val useGlass = glassConfig.isEnabledFor(GlassComponent.NAV_BAR) && isGlassAllowed()
     val appleMusicUi = LocalAppleMusicUi.current
 
-    val backgroundColor = when {
-        useGlass -> Color.Transparent
-        pureBlack -> Color.Black
-        else -> MaterialTheme.colorScheme.surfaceContainerHigh
-    }
     val isLight = MaterialTheme.colorScheme.surface.luminance() > 0.5f
+    val backgroundColor = when {
+        pureBlack -> Color.Black
+        useGlass -> if (isLight) Color.White.copy(alpha = 0.2f) else Color(0xFF0F0F11).copy(alpha = 0.75f)
+        isLight -> MaterialTheme.colorScheme.surfaceContainerHigh
+        else -> Color(0xFF141417)
+    }
     val selectedContentColor = when {
         isLight -> MaterialTheme.colorScheme.onSurface
         pureBlack || useGlass -> glassConfig.textColor

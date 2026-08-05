@@ -103,24 +103,56 @@ class HomeViewModel @Inject constructor(
         when (quickPicksEnum.first()) {
             QuickPicks.QUICK_PICKS -> {
                 // Instantly load from local database first to avoid startup blocking
-                val localPicks = database.quickPicks().first().shuffled().take(20)
+                val dbPicks = database.quickPicks().first().shuffled().take(20)
+                val localPicks = if (dbPicks.isNotEmpty()) dbPicks else database.allSongs().first().shuffled().take(20)
                 if (localPicks.isNotEmpty()) {
                     quickPicks.value = localPicks
+                    loadSpeedDialSongs()
                 }
                 
                 // Then fetch remote updates in the background
                 viewModelScope.launch(Dispatchers.IO) {
-                    val recentSong = database.events().first().firstOrNull()?.song
+                    val recentEventSong = database.events().first().firstOrNull()?.song
+                    val recentSong = recentEventSong 
+                        ?: database.mostPlayedSongs(0, limit = 1).first().firstOrNull()
+                        ?: database.allSongs().first().firstOrNull()
+                    
+                    var remoteSongs: List<Song> = emptyList()
+                    
                     if (recentSong != null) {
                         val endpoint = WatchEndpoint(videoId = recentSong.id)
-                        YouTube.next(endpoint).getOrNull()?.let { nextResult ->
-                            YouTube.related(nextResult.relatedEndpoint ?: return@let).getOrNull()?.let { relatedPage ->
-                                 val remoteSongs = relatedPage.songs.take(20).map { it.toMediaMetadata().toSong() }
-                                 if (remoteSongs.isNotEmpty()) {
-                                     quickPicks.value = remoteSongs
-                                 }
+                        val nextResult = YouTube.next(endpoint).getOrNull()
+                        if (nextResult != null) {
+                            if (nextResult.relatedEndpoint != null) {
+                                val relatedPage = YouTube.related(nextResult.relatedEndpoint!!).getOrNull()
+                                if (relatedPage != null && relatedPage.songs.isNotEmpty()) {
+                                    remoteSongs = relatedPage.songs.take(20).map { it.toMediaMetadata().toSong() }
+                                }
+                            }
+                            if (remoteSongs.isEmpty() && nextResult.items.isNotEmpty()) {
+                                remoteSongs = nextResult.items.take(20).map { it.toMediaMetadata().toSong() }
                             }
                         }
+                    }
+                    
+                    // Fallback to YouTube home if no recent song or remote failed
+                    if (remoteSongs.isEmpty()) {
+                        YouTube.home().getOrNull()?.let { homePage ->
+                            val homeItems = homePage.sections.flatMap { it.items }.filterIsInstance<com.tamed.music.innertube.models.SongItem>()
+                            if (homeItems.isNotEmpty()) {
+                                remoteSongs = homeItems.take(20).map { it.toMediaMetadata().toSong() }
+                            }
+                        }
+                    }
+                    
+                    if (remoteSongs.isNotEmpty()) {
+                        database.transaction {
+                            remoteSongs.forEach { song ->
+                                insert(song.toMediaMetadata())
+                            }
+                        }
+                        quickPicks.value = remoteSongs
+                        loadSpeedDialSongs()
                     }
                 }
             }
@@ -145,13 +177,15 @@ class HomeViewModel @Inject constructor(
         }
 
         // Always fill up to 17 slots. 
-        // Prioritize: 1. Pinned 2. Discovery Picks (New tracks) 3. Most Played
+        // Prioritize: 1. Pinned 2. Discovery Picks (New tracks) 3. Most Played / History
         if (pinnedSongs.size < 17) {
             val discoveryPicks = quickPicks.value.orEmpty()
             val mostPlayed = database.mostPlayedSongs(0, limit = 34).first()
+            val recentEvents = database.events().first().mapNotNull { it.song }.distinctBy { it.id }
+            val dbSongs = database.allSongs().first()
             
-            // Mix discovery and most played, but prioritize discovery for the backfill
-            val backfill = (discoveryPicks + mostPlayed)
+            // Mix discovery, most played, recent events, and library songs
+            val backfill = (discoveryPicks + mostPlayed + recentEvents + dbSongs)
                 .distinctBy { it.id }
                 .filterNot { bc -> pinnedSongs.any { ps -> ps.id == bc.id } }
             

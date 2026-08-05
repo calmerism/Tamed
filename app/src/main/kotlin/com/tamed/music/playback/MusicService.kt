@@ -3468,7 +3468,23 @@ class MusicService :
     }
 
     val timelineEmpty = player.currentTimeline.isEmpty || player.mediaItemCount == 0 || player.currentMediaItem == null
-    currentMediaMetadata.value = if (timelineEmpty) null else (mediaItem?.metadata ?: player.currentMetadata)
+    val targetMeta = if (timelineEmpty) null else (mediaItem?.metadata ?: player.currentMetadata)
+    currentMediaMetadata.value = targetMeta
+
+    if (targetMeta != null && targetMeta.id.isNotBlank()) {
+        database.query {
+            try {
+                insert(targetMeta)
+                insert(
+                    Event(
+                        songId = targetMeta.id,
+                        timestamp = java.time.LocalDateTime.now(),
+                        playTime = 0L,
+                    )
+                )
+            } catch (_: Exception) {}
+        }
+    }
 
     scrobbleManager?.onSongStop()
 

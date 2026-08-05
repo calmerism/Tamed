@@ -15,12 +15,16 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -296,77 +300,125 @@ fun NavGraphBuilder.navigationBuilder(
         YouTubeBrowseScreen(navController)
     }
     composable("settings") {
-        SettingsScreen(navController, scrollBehavior, latestVersionName)
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            SettingsScreen(navController, scrollBehavior, latestVersionName)
+        }
     }
     composable("settings/account") {
-        AccountSettings(navController, scrollBehavior, latestVersionName)
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            AccountSettings(navController, scrollBehavior, latestVersionName)
+        }
     }
     composable("settings/appearance") {
-        AppearanceSettings(navController, scrollBehavior)
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            AppearanceSettings(navController, scrollBehavior)
+        }
     }
     composable("settings/appearance/palette_picker") {
-        PalettePickerScreen(navController)
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            PalettePickerScreen(navController)
+        }
     }
     composable("settings/appearance/theme_creator") {
-        ThemeCreatorScreen(navController)
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            ThemeCreatorScreen(navController)
+        }
     }
 
     composable("settings/content") {
-        ContentSettings(navController, scrollBehavior)
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            ContentSettings(navController, scrollBehavior)
+        }
     }
     composable("settings/player") {
-        PlayerSettings(navController, scrollBehavior)
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            PlayerSettings(navController, scrollBehavior)
+        }
     }
     composable("settings/storage") {
-        StorageSettings(navController, scrollBehavior)
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            StorageSettings(navController, scrollBehavior)
+        }
     }
     composable("settings/privacy") {
-        PrivacySettings(navController, scrollBehavior)
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            PrivacySettings(navController, scrollBehavior)
+        }
     }
     composable("settings/backup_restore") {
-        BackupAndRestore(navController, scrollBehavior)
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            BackupAndRestore(navController, scrollBehavior)
+        }
     }
     composable("settings/discord") {
-        DiscordSettings(navController, scrollBehavior)
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            DiscordSettings(navController, scrollBehavior)
+        }
     }
     composable("settings/integration") {
-        IntegrationScreen(navController, scrollBehavior)
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            IntegrationScreen(navController, scrollBehavior)
+        }
     }
     composable("settings/statsfm") {
-        com.tamed.music.ui.screens.settings.StatsFmSettings(navController, scrollBehavior)
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            com.tamed.music.ui.screens.settings.StatsFmSettings(navController, scrollBehavior)
+        }
     }
     composable("settings/spotify") {
-        com.tamed.music.ui.screens.settings.SpotifySettings(navController, scrollBehavior)
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            com.tamed.music.ui.screens.settings.SpotifySettings(navController, scrollBehavior)
+        }
     }
     composable("settings/music_together") {
-        MusicTogetherScreen(navController, scrollBehavior)
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            MusicTogetherScreen(navController, scrollBehavior)
+        }
     }
     composable("settings/lastfm") {
-        LastFMSettings(navController, scrollBehavior)
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            LastFMSettings(navController, scrollBehavior)
+        }
     }
     composable("settings/discord/experimental") {
-        com.tamed.music.ui.screens.settings.DiscordExperimental(navController)
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            com.tamed.music.ui.screens.settings.DiscordExperimental(navController)
+        }
     }
     composable("settings/misc") {
-        DebugSettings(navController)
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            DebugSettings(navController)
+        }
     }
     composable("settings/update") {
-        UpdateScreen(navController, scrollBehavior)
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            UpdateScreen(navController, scrollBehavior)
+        }
     }
     composable("settings/changelog") {
-        ChangelogScreen(navController, scrollBehavior)
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            ChangelogScreen(navController, scrollBehavior)
+        }
     }
     composable("settings/discord/login") {
-        DiscordLoginScreen(navController)
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            DiscordLoginScreen(navController)
+        }
     }
     composable("settings/about") {
-        AboutScreen(navController, scrollBehavior)
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            AboutScreen(navController, scrollBehavior)
+        }
     }
     composable("settings/po_token") {
-        PoTokenScreen(navController, scrollBehavior)
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            PoTokenScreen(navController, scrollBehavior)
+        }
     }
     composable("customize_background") {
-        CustomizeBackground(navController)
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            CustomizeBackground(navController)
+        }
     }
     composable("equalizer") {
         EqualizerDialog(
