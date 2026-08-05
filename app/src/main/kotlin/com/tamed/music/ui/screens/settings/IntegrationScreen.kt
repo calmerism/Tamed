@@ -4,8 +4,6 @@
  * Licensed Under GPL-3.0 | see git history for contributors
  */
 
-
-
 package com.tamed.music.ui.screens.settings
 
 import androidx.compose.foundation.layout.Column
@@ -30,12 +28,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import com.tamed.music.LocalPlayerAwareWindowInsets
 import com.tamed.music.R
-import com.tamed.music.ui.component.PreferenceGroupTitle
+import com.tamed.music.constants.DiscordUsernameKey
 import com.tamed.music.constants.ListenBrainzEnabledKey
 import com.tamed.music.constants.ListenBrainzTokenKey
+import com.tamed.music.constants.SpotifyUsernameKey
+import com.tamed.music.constants.StatsFmUsernameKey
 import com.tamed.music.ui.component.IconButton
 import com.tamed.music.ui.component.InfoLabel
 import com.tamed.music.ui.component.PreferenceEntry
+import com.tamed.music.ui.component.PreferenceGroupTitle
 import com.tamed.music.ui.component.SwitchPreference
 import com.tamed.music.ui.component.TextFieldDialog
 import com.tamed.music.ui.utils.backToMain
@@ -51,6 +52,9 @@ fun IntegrationScreen(
 
     val (listenBrainzEnabled, onListenBrainzEnabledChange) = rememberPreference(ListenBrainzEnabledKey, false)
     val (listenBrainzToken, onListenBrainzTokenChange) = rememberPreference(ListenBrainzTokenKey, "")
+    val (discordUser, _) = rememberPreference(DiscordUsernameKey, "")
+    val (statsFmUser, _) = rememberPreference(StatsFmUsernameKey, "")
+    val (spotifyUser, _) = rememberPreference(SpotifyUsernameKey, "")
 
     var showListenBrainzTokenEditor = remember { mutableStateOf(false) }
 
@@ -61,21 +65,42 @@ fun IntegrationScreen(
     ) {
         Spacer(
             Modifier.windowInsetsPadding(
-                LocalPlayerAwareWindowInsets.current.only(
-                    WindowInsetsSides.Top
-                )
+                LocalPlayerAwareWindowInsets.current.only(WindowInsetsSides.Top)
             )
         )
 
         PreferenceGroupTitle(
-                title = stringResource(R.string.general),
-            )
+            title = "Social & Presence",
+        )
 
         PreferenceEntry(
             title = { Text(stringResource(R.string.discord_integration)) },
+            description = if (discordUser.isNotBlank()) "Logged in as @$discordUser" else "Show Rich Presence status & listening activity",
             icon = { Icon(painterResource(R.drawable.discord), null) },
             onClick = {
                 navController.navigate("settings/discord")
+            },
+        )
+
+        PreferenceGroupTitle(
+            title = "Music Services & Analytics",
+        )
+
+        PreferenceEntry(
+            title = { Text("Spotify Integration") },
+            description = if (spotifyUser.isNotBlank()) "Connected as @$spotifyUser" else "Import playlists, liked songs & track metadata",
+            icon = { Icon(painterResource(R.drawable.music_note), null) },
+            onClick = {
+                navController.navigate("settings/spotify")
+            },
+        )
+
+        PreferenceEntry(
+            title = { Text("stats.fm (Spotistats)") },
+            description = if (statsFmUser.isNotBlank()) "Connected as @$statsFmUser" else "Sync listening stats & top charts",
+            icon = { Icon(painterResource(R.drawable.stats), null) },
+            onClick = {
+                navController.navigate("settings/statsfm")
             },
         )
 
@@ -85,6 +110,7 @@ fun IntegrationScreen(
 
         PreferenceEntry(
             title = { Text(stringResource(R.string.lastfm_integration)) },
+            description = "Scrobble tracks to Last.fm profile",
             icon = { Icon(painterResource(R.drawable.token), null) },
             onClick = {
                 navController.navigate("settings/lastfm")

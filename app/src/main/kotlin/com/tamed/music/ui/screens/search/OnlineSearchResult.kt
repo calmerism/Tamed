@@ -12,16 +12,20 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -217,136 +221,131 @@ fun OnlineSearchResult(
     }
 
     AmbientBackdrop {
-        Box(modifier = Modifier.fillMaxSize()) {
-            LazyColumn(
-        state = lazyListState,
-        contentPadding =
-        LocalPlayerAwareWindowInsets.current
-            .add(WindowInsets(top = SearchFilterHeight + 8.dp))
-            .asPaddingValues(),
-        modifier = Modifier.background(if (pureBlack) Color.Black else Color.Transparent),
-    ) {
-        if (searchFilter == null) {
-            searchSummary?.summaries?.forEachIndexed { index, summary ->
-                if (index > 0) {
-                    item(key = "divider_$index") {
-                        HorizontalDivider(
-                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp),
-                            thickness = 0.5.dp,
-                            color = appleDividerColor()
-                        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .windowInsetsPadding(WindowInsets.statusBars)
+                .background(if (pureBlack) Color.Black else Color.Transparent)
+        ) {
+            ChipsRow(
+                chips = listOf(
+                    null to stringResource(R.string.filter_all),
+                    FILTER_SONG to stringResource(R.string.filter_songs),
+                    FILTER_VIDEO to stringResource(R.string.filter_videos),
+                    FILTER_ALBUM to stringResource(R.string.filter_albums),
+                    FILTER_ARTIST to stringResource(R.string.filter_artists),
+                    FILTER_COMMUNITY_PLAYLIST to stringResource(R.string.filter_community_playlists),
+                    FILTER_FEATURED_PLAYLIST to stringResource(R.string.filter_featured_playlists),
+                ),
+                currentValue = searchFilter,
+                onValueUpdate = {
+                    if (viewModel.filter.value != it) {
+                        viewModel.filter.value = it
                     }
-                }
-
-                item {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
-                    ) {
-                        Text(
-                            text = summary.title,
-                            style = TamedAppleTypography.sectionTitle(),
-                            fontWeight = FontWeight.SemiBold,
-                            color = applePrimaryTextColor(),
-                        )
+                    coroutineScope.launch {
+                        lazyListState.animateScrollToItem(0)
                     }
-                }
-
-                items(
-                    items = summary.items,
-                    key = { "${summary.title}/${it.id}/${summary.items.indexOf(it)}" },
-                    itemContent = ytItemContent,
-                )
-
-                item {
-                    Spacer(Modifier.height(4.dp))
-                }
-            }
-
-            if (searchSummary?.summaries?.isEmpty() == true) {
-                item {
-                    EmptyPlaceholder(
-                        icon = R.drawable.search,
-                        text = stringResource(R.string.no_results_found),
-                    )
-                }
-            }
-        } else {
-            items(
-                items = itemsPage?.items.orEmpty().distinctBy { it.id },
-                key = { "filtered_${it.id}" },
-                itemContent = ytItemContent,
+                },
+                icons = mapOf(
+                    null to R.drawable.search,
+                    FILTER_SONG to R.drawable.music_note,
+                    FILTER_VIDEO to R.drawable.slow_motion_video,
+                    FILTER_ALBUM to R.drawable.album,
+                    FILTER_ARTIST to R.drawable.person,
+                    FILTER_COMMUNITY_PLAYLIST to R.drawable.queue_music,
+                    FILTER_FEATURED_PLAYLIST to R.drawable.playlist_play,
+                ),
+                modifier = Modifier.fillMaxWidth()
             )
 
-            if (itemsPage?.continuation != null) {
-                item(key = "loading") {
-                    ShimmerHost {
-                        repeat(3) {
-                            ListItemPlaceHolder()
+            val bottomPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues().calculateBottomPadding()
+
+            LazyColumn(
+                state = lazyListState,
+                contentPadding = PaddingValues(top = 4.dp, bottom = bottomPadding),
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                if (searchFilter == null) {
+                    searchSummary?.summaries?.forEachIndexed { index, summary ->
+                        if (index > 0) {
+                            item(key = "divider_$index") {
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp),
+                                    thickness = 0.5.dp,
+                                    color = appleDividerColor()
+                                )
+                            }
+                        }
+
+                        item {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
+                            ) {
+                                Text(
+                                    text = summary.title,
+                                    style = TamedAppleTypography.sectionTitle(),
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = applePrimaryTextColor(),
+                                )
+                            }
+                        }
+
+                        items(
+                            items = summary.items,
+                            key = { "${summary.title}/${it.id}/${summary.items.indexOf(it)}" },
+                            itemContent = ytItemContent,
+                        )
+
+                        item {
+                            Spacer(Modifier.height(4.dp))
+                        }
+                    }
+
+                    if (searchSummary?.summaries?.isEmpty() == true) {
+                        item {
+                            EmptyPlaceholder(
+                                icon = R.drawable.search,
+                                text = stringResource(R.string.no_results_found),
+                            )
+                        }
+                    }
+                } else {
+                    items(
+                        items = itemsPage?.items.orEmpty().distinctBy { it.id },
+                        key = { "filtered_${it.id}" },
+                        itemContent = ytItemContent,
+                    )
+
+                    if (itemsPage?.continuation != null) {
+                        item(key = "loading") {
+                            ShimmerHost {
+                                repeat(3) {
+                                    ListItemPlaceHolder()
+                                }
+                            }
+                        }
+                    }
+
+                    if (itemsPage?.items?.isEmpty() == true) {
+                        item {
+                            EmptyPlaceholder(
+                                icon = R.drawable.search,
+                                text = stringResource(R.string.no_results_found),
+                            )
+                        }
+                    }
+                }
+
+                if (searchFilter == null && searchSummary == null || searchFilter != null && itemsPage == null) {
+                    item {
+                        ShimmerHost {
+                            repeat(8) {
+                                ListItemPlaceHolder()
+                            }
                         }
                     }
                 }
             }
-
-            if (itemsPage?.items?.isEmpty() == true) {
-                item {
-                    EmptyPlaceholder(
-                        icon = R.drawable.search,
-                        text = stringResource(R.string.no_results_found),
-                    )
-                }
-            }
-        }
-
-        if (searchFilter == null && searchSummary == null || searchFilter != null && itemsPage == null) {
-            item {
-                ShimmerHost {
-                    repeat(8) {
-                        ListItemPlaceHolder()
-                    }
-                }
-            }
-        }
-    }
-
-    Surface(
-        color = if (pureBlack) Color.Black else Color.Transparent,
-        tonalElevation = 0.dp,
-        shadowElevation = 0.dp,
-        modifier = Modifier
-            .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Top).add(WindowInsets(top = AppBarHeight)))
-            .fillMaxWidth()
-    ) {
-        ChipsRow(
-            chips =
-            listOf(
-                null to stringResource(R.string.filter_all),
-                FILTER_SONG to stringResource(R.string.filter_songs),
-                FILTER_VIDEO to stringResource(R.string.filter_videos),
-                FILTER_ALBUM to stringResource(R.string.filter_albums),
-                FILTER_ARTIST to stringResource(R.string.filter_artists),
-                FILTER_COMMUNITY_PLAYLIST to stringResource(R.string.filter_community_playlists),
-                FILTER_FEATURED_PLAYLIST to stringResource(R.string.filter_featured_playlists),
-            ),
-            currentValue = searchFilter,
-            onValueUpdate = {
-                if (viewModel.filter.value != it) {
-                    viewModel.filter.value = it
-                }
-                coroutineScope.launch {
-                    lazyListState.animateScrollToItem(0)
-                }
-            },
-            icons = mapOf(
-                null to R.drawable.search,
-                FILTER_SONG to R.drawable.music_note,
-                FILTER_VIDEO to R.drawable.slow_motion_video,
-                FILTER_ALBUM to R.drawable.album,
-                FILTER_ARTIST to R.drawable.person,
-                FILTER_COMMUNITY_PLAYLIST to R.drawable.queue_music,
-                FILTER_FEATURED_PLAYLIST to R.drawable.playlist_play,
-            ),
-        )
-    }
         }
     }}

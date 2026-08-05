@@ -134,6 +134,7 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import com.tamed.music.ui.component.LocalMenuState
+import com.tamed.music.ui.component.LocalNavSearchState
 import com.tamed.music.ui.component.YouTubeGridItem
 import com.tamed.music.ui.menu.YouTubeAlbumMenu
 import com.tamed.music.constants.GridThumbnailHeight
@@ -260,207 +261,128 @@ fun SearchScreen(
             modifier = Modifier.fillMaxSize(),
             useShader = true,
             content = {
+                val navSearchState = LocalNavSearchState.current
+                val isSearching = navSearchState.query.text.isNotEmpty()
+
                 Scaffold(
-            topBar = {
-                Column(
-                    modifier = Modifier
-                        .background(if (pureBlack) Color.Black else Color.Transparent)
-                ) {
-                SearchBar(
-                    query = query.text,
-                    onQueryChange = { query = TextFieldValue(it) },
-                    onSearch = { 
-                        onSearch(it)
-                        searchActive = false
-                    },
-                    active = searchActive,
-                    onActiveChange = { searchActive = it },
-                    placeholder = {
-                        Text(
-                            text = stringResource(
-                                when (searchSource) {
-                                    SearchSource.LOCAL -> R.string.search_library
-                                    SearchSource.ONLINE -> R.string.search_yt_music
-                                }
-                            ),
-                            style = TextStyle(
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                                fontSize = 16.sp
-                            )
-                        )
-                    },
-                    leadingIcon = {
-                        IconButton(onClick = {
-                            if (searchActive) {
-                                searchActive = false
-                                query = TextFieldValue("") // Clear text when dismissing search
-                            } else {
-                                searchActive = true // Focus search instead of navigating back
-                            }
-                        }) {
-                            Icon(
-                                painter = painterResource(if (searchActive) R.drawable.arrow_back else R.drawable.search),
-                                contentDescription = if (searchActive) stringResource(R.string.dismiss) else null,
-                                tint = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                    },
-                    trailingIcon = {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            if (query.text.isNotEmpty()) {
-                                IconButton(onClick = { query = TextFieldValue("") }) {
-                                    Icon(
-                                        painter = painterResource(R.drawable.close),
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onSurface
-                                    )
-                                }
-                            }
-                            IconButton(
-                                onClick = {
-                                    searchSource = if (searchSource == SearchSource.ONLINE) 
-                                        SearchSource.LOCAL else SearchSource.ONLINE
-                                }
-                            ) {
-                                Icon(
-                                    painter = painterResource(
-                                        when (searchSource) {
-                                            SearchSource.LOCAL -> R.drawable.library_music
-                                            SearchSource.ONLINE -> R.drawable.explore_outlined
-                                        }
-                                    ),
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurface
-                                )
-                            }
-                        }
-                    },
-                    colors = SearchBarDefaults.colors(
-                        containerColor = if (pureBlack) Color.Black else Color.Transparent,
-                        dividerColor = Color.Transparent
-                    ),
-                    tonalElevation = 0.dp,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = searchBarHorizontalPadding)
-                        .padding(top = searchBarTopPadding)
-                        .then(searchBarGlassModifier)
-                ) {
-                    if (showSearchContent) {
-                        when (searchSource) {
-                            SearchSource.LOCAL -> LocalSearchScreen(
-                                query = query.text,
-                                navController = navController,
-                                onDismiss = { searchActive = false },
-                                pureBlack = pureBlack
-                            )
-                            SearchSource.ONLINE -> OnlineSearchScreen(
-                                query = query.text,
-                                onQueryChange = { query = it },
-                                navController = navController,
-                                onSearch = {
-                                    onSearchFromSuggestion(it)
-                                    searchActive = false
-                                },
-                                onDismiss = { searchActive = false },
-                                pureBlack = pureBlack
-                            )
-                        }
-                    }
-                }
-
-                AnimatedVisibility(
-                    visible = !searchActive,
-                    enter = expandVertically(animationSpec = tween(durationMillis = 245, easing = FastOutSlowInEasing)) + fadeIn(),
-                    exit = shrinkVertically(animationSpec = tween(durationMillis = 245, easing = FastOutSlowInEasing)) + fadeOut()
-                ) {
-                    Column {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        val tabs = listOf("Explore", "Suggestions", "Albums")
-                        val configuration = androidx.compose.ui.platform.LocalConfiguration.current
-                        val screenWidthDp = configuration.screenWidthDp.dp
-                        val tabWidth = (screenWidthDp - 32.dp) / 3
-                        val indicatorOffset by animateDpAsState(
-                            targetValue = tabWidth * selectedTabIndex,
-                            animationSpec = spring(dampingRatio = 0.8f, stiffness = 300f),
-                            label = "indicatorOffset"
-                        )
-
-                        Box(
+                    topBar = {
+                        Column(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 8.dp)
-                                .height(42.dp)
-                                .clip(RoundedCornerShape(21.dp))
-                                .then(tabsGlassModifier)
+                                .background(if (pureBlack) Color.Black else Color.Transparent)
+                                .windowInsetsPadding(WindowInsets.statusBars)
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .padding(3.dp)
-                                    .width(tabWidth - 6.dp)
-                                    .fillMaxHeight()
-                                    .offset(x = indicatorOffset)
-                                    .clip(RoundedCornerShape(18.dp))
-                                    .background(
-                                        if (isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainerHighest
-                                        else MaterialTheme.colorScheme.surface
-                                    )
-                            )
-
-                            Row(
-                                modifier = Modifier.fillMaxSize(),
-                                verticalAlignment = Alignment.CenterVertically
+                            AnimatedVisibility(
+                                visible = !isSearching,
+                                enter = expandVertically(animationSpec = tween(durationMillis = 245, easing = FastOutSlowInEasing)) + fadeIn(),
+                                exit = shrinkVertically(animationSpec = tween(durationMillis = 245, easing = FastOutSlowInEasing)) + fadeOut()
                             ) {
-                                tabs.forEachIndexed { index, title ->
+                                Column {
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    val tabs = listOf("Explore", "Suggestions", "Albums")
+                                    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+                                    val screenWidthDp = configuration.screenWidthDp.dp
+                                    val tabWidth = (screenWidthDp - 32.dp) / 3
+                                    val indicatorOffset by animateDpAsState(
+                                        targetValue = tabWidth * selectedTabIndex,
+                                        animationSpec = spring(dampingRatio = 0.8f, stiffness = 300f),
+                                        label = "indicatorOffset"
+                                    )
+
                                     Box(
                                         modifier = Modifier
-                                            .weight(1f)
-                                            .fillMaxHeight()
-                                            .clickable(
-                                                interactionSource = remember { MutableInteractionSource() },
-                                                indication = null
-                                            ) {
-                                                selectedTabIndex = index
-                                            },
-                                        contentAlignment = Alignment.Center
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                                            .height(42.dp)
+                                            .clip(RoundedCornerShape(21.dp))
+                                            .then(tabsGlassModifier)
                                     ) {
-                                        Text(
-                                            text = title,
-                                            fontSize = 14.sp,
-                                            fontWeight = if (selectedTabIndex == index) FontWeight.SemiBold else FontWeight.Normal,
-                                            color = if (selectedTabIndex == index) {
-                                                MaterialTheme.colorScheme.onSurface
-                                            } else {
-                                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                                            }
+                                        Box(
+                                            modifier = Modifier
+                                                .padding(3.dp)
+                                                .width(tabWidth - 6.dp)
+                                                .fillMaxHeight()
+                                                .offset(x = indicatorOffset)
+                                                .clip(RoundedCornerShape(18.dp))
+                                                .background(
+                                                    if (isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceContainerHighest
+                                                    else MaterialTheme.colorScheme.surface
+                                                )
                                         )
+
+                                        Row(
+                                            modifier = Modifier.fillMaxSize(),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            tabs.forEachIndexed { index, title ->
+                                                Box(
+                                                    modifier = Modifier
+                                                        .weight(1f)
+                                                        .fillMaxHeight()
+                                                        .clickable(
+                                                            interactionSource = remember { MutableInteractionSource() },
+                                                            indication = null
+                                                        ) {
+                                                            selectedTabIndex = index
+                                                        },
+                                                    contentAlignment = Alignment.Center
+                                                ) {
+                                                    Text(
+                                                        text = title,
+                                                        fontSize = 14.sp,
+                                                        fontWeight = if (selectedTabIndex == index) FontWeight.SemiBold else FontWeight.Normal,
+                                                        color = if (selectedTabIndex == index) {
+                                                            MaterialTheme.colorScheme.onSurface
+                                                        } else {
+                                                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                                        }
+                                                    )
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
+                    },
+                    containerColor = if (pureBlack) Color.Black else Color.Transparent
+                ) { paddingValues ->
+                    val bottomPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues().calculateBottomPadding()
+
+                    Box(
+                        modifier = Modifier
+                            .padding(top = paddingValues.calculateTopPadding())
+                            .fillMaxSize()
+                    ) {
+                        if (isSearching) {
+                            when (navSearchState.searchSource) {
+                                SearchSource.LOCAL -> LocalSearchScreen(
+                                    query = navSearchState.query.text,
+                                    navController = navController,
+                                    onDismiss = { navSearchState.onCloseKeyboard() },
+                                    pureBlack = pureBlack
+                                )
+                                SearchSource.ONLINE -> OnlineSearchScreen(
+                                    query = navSearchState.query.text,
+                                    onQueryChange = { navSearchState.onQueryChange(it) },
+                                    navController = navController,
+                                    onSearch = {
+                                        onSearchFromSuggestion(it)
+                                        navSearchState.onCloseKeyboard()
+                                    },
+                                    onDismiss = { navSearchState.onCloseKeyboard() },
+                                    pureBlack = pureBlack
+                                )
+                            }
+                        } else {
+                            val tabPadding = PaddingValues(top = 16.dp, bottom = bottomPadding)
+                            when (selectedTabIndex) {
+                                0 -> ExploreTabContent(navController = navController, contentPadding = tabPadding)
+                                1 -> SuggestionsTabContent(navController = navController, contentPadding = tabPadding)
+                                2 -> AlbumsTabContent(navController = navController, contentPadding = tabPadding)
+                            }
+                        }
                     }
                 }
-            }
-        },
-        containerColor = if (pureBlack) Color.Black else Color.Transparent
-    ) { paddingValues ->
-        val bottomPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues().calculateBottomPadding()
-        
-        Box(
-            modifier = Modifier
-                .padding(top = paddingValues.calculateTopPadding())
-                .fillMaxSize()
-        ) {
-            if (!searchActive) {
-                val tabPadding = PaddingValues(top = 16.dp, bottom = bottomPadding)
-                when (selectedTabIndex) {
-                    0 -> ExploreTabContent(navController = navController, contentPadding = tabPadding)
-                    1 -> SuggestionsTabContent(navController = navController, contentPadding = tabPadding)
-                    2 -> AlbumsTabContent(navController = navController, contentPadding = tabPadding)
-                }
-            }
-        }
-    }
             },
             glassContent = {}
         )

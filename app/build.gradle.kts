@@ -50,8 +50,8 @@ android {
     applicationId = "com.tamed.music"
         minSdk = 26
         targetSdk = 36
-        versionCode = 136
-        versionName = "0.1.0"
+        versionCode = 137
+        versionName = "0.1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true

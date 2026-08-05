@@ -15,6 +15,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.horizontalScroll
@@ -37,6 +38,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
@@ -1526,11 +1533,28 @@ fun EqualizerDialog(
             ) {
                 TopAppBar(
                     title = {
-                        Text(
-                            text = stringResource(R.string.equalizer),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        ) {
+                            Text(
+                                text = stringResource(R.string.equalizer),
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                            )
+                            Surface(
+                                color = if (eqEnabled) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHighest,
+                                shape = CircleShape,
+                            ) {
+                                Text(
+                                    text = if (eqEnabled) "ON" else "OFF",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                    color = if (eqEnabled) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                                )
+                            }
+                        }
                     },
                     navigationIcon = {
                         IconButton(onClick = onDismiss) {
@@ -1547,15 +1571,13 @@ fun EqualizerDialog(
                                 setEqEnabled(it)
                                 if (it && selectedProfileId.isBlank()) setSelectedProfileId("manual")
                             },
-                            thumbContent = {
-                                Icon(
-                                    painter = painterResource(id = if (eqEnabled) R.drawable.check else R.drawable.close),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(SwitchDefaults.IconSize),
-                                )
-                            },
+                            colors =
+                                SwitchDefaults.colors(
+                                    checkedThumbColor = Color.White,
+                                    checkedTrackColor = MaterialTheme.colorScheme.primary,
+                                ),
                         )
-                        Spacer(Modifier.width(8.dp))
+                        Spacer(Modifier.width(12.dp))
                     },
                     colors =
                         TopAppBarDefaults.topAppBarColors(
@@ -1572,7 +1594,7 @@ fun EqualizerDialog(
                             .padding(horizontal = 20.dp)
                             .padding(bottom = 32.dp),
                 ) {
-                    Spacer(Modifier.height(12.dp))
+                    Spacer(Modifier.height(8.dp))
 
                     if (caps == null || bandCount <= 0) {
                         Surface(
@@ -1601,6 +1623,14 @@ fun EqualizerDialog(
                         Spacer(Modifier.height(24.dp))
                         return@Column
                     }
+
+                    EqFrequencyCurveCanvas(
+                        bandLevelsMb = bandLevelsMb,
+                        minMb = minMb,
+                        maxMb = maxMb,
+                        enabled = eqEnabled,
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 14.dp),
+                    )
 
                     EqSection(
                         title = stringResource(R.string.eq_presets),
@@ -1736,6 +1766,7 @@ fun EqualizerDialog(
                                 Text(
                                     text = label,
                                     style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                                     modifier = Modifier.width(64.dp),
                                 )
 
@@ -1765,6 +1796,7 @@ fun EqualizerDialog(
                                 Text(
                                     text = formatDb(valueDb),
                                     style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                                     textAlign = TextAlign.End,
                                     modifier = Modifier.width(64.dp),
                                 )
@@ -1841,6 +1873,132 @@ fun EqualizerDialog(
 }
 
 @Composable
+private fun EqFrequencyCurveCanvas(
+    bandLevelsMb: List<Int>,
+    minMb: Int,
+    maxMb: Int,
+    enabled: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val activeColor = if (enabled) primaryColor else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+    val gridColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+    val isDark = androidx.compose.foundation.isSystemInDarkTheme()
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(150.dp)
+            .clip(RoundedCornerShape(24.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.75f))
+            .border(
+                0.5.dp,
+                MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
+                RoundedCornerShape(24.dp),
+            )
+            .padding(16.dp),
+    ) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val width = size.width
+            val height = size.height
+            val pointsCount = bandLevelsMb.size.coerceAtLeast(2)
+
+            val centerY = height / 2f
+            drawLine(
+                color = gridColor,
+                start = androidx.compose.ui.geometry.Offset(0f, centerY),
+                end = androidx.compose.ui.geometry.Offset(width, centerY),
+                strokeWidth = 1.5.dp.toPx(),
+                pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f),
+            )
+            drawLine(
+                color = gridColor.copy(alpha = 0.05f),
+                start = androidx.compose.ui.geometry.Offset(0f, height * 0.15f),
+                end = androidx.compose.ui.geometry.Offset(width, height * 0.15f),
+                strokeWidth = 1.dp.toPx(),
+            )
+            drawLine(
+                color = gridColor.copy(alpha = 0.05f),
+                start = androidx.compose.ui.geometry.Offset(0f, height * 0.85f),
+                end = androidx.compose.ui.geometry.Offset(width, height * 0.85f),
+                strokeWidth = 1.dp.toPx(),
+            )
+
+            if (bandLevelsMb.isEmpty()) return@Canvas
+
+            val paddingX = width * 0.06f
+            val availableWidth = width - (paddingX * 2f)
+            val minF = minMb.toFloat()
+            val maxF = maxMb.toFloat()
+            val rangeF = (maxF - minF).coerceAtLeast(1f)
+
+            val points = bandLevelsMb.mapIndexed { index, levelMb ->
+                val normX = paddingX + (index.toFloat() / (pointsCount - 1).toFloat()) * availableWidth
+                val normY = height * 0.12f + (1f - (levelMb.toFloat() - minF) / rangeF) * (height * 0.76f)
+                androidx.compose.ui.geometry.Offset(normX, normY)
+            }
+
+            val curvePath = Path().apply {
+                moveTo(points.first().x, points.first().y)
+                for (i in 0 until points.size - 1) {
+                    val p0 = points[i]
+                    val p1 = points[i + 1]
+                    val controlX1 = p0.x + (p1.x - p0.x) / 2f
+                    val controlY1 = p0.y
+                    val controlX2 = p0.x + (p1.x - p0.x) / 2f
+                    val controlY2 = p1.y
+                    cubicTo(controlX1, controlY1, controlX2, controlY2, p1.x, p1.y)
+                }
+            }
+
+            val fillPath = Path().apply {
+                addPath(curvePath)
+                lineTo(points.last().x, height)
+                lineTo(points.first().x, height)
+                close()
+            }
+
+            drawPath(
+                path = fillPath,
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        activeColor.copy(alpha = if (enabled) 0.35f else 0.10f),
+                        activeColor.copy(alpha = 0.0f),
+                    ),
+                ),
+            )
+
+            drawPath(
+                path = curvePath,
+                color = activeColor,
+                style = Stroke(
+                    width = 3.5.dp.toPx(),
+                    cap = StrokeCap.Round,
+                ),
+            )
+
+            points.forEach { point ->
+                drawCircle(
+                    color = activeColor.copy(alpha = 0.25f),
+                    radius = 8.dp.toPx(),
+                    center = point,
+                )
+                drawCircle(
+                    color = activeColor,
+                    radius = 4.5.dp.toPx(),
+                    center = point,
+                )
+                drawCircle(
+                    color = Color.White,
+                    radius = 2.dp.toPx(),
+                    center = point,
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun EqSection(
     title: String,
     trailing: @Composable (() -> Unit)? = null,
@@ -1891,13 +2049,11 @@ private fun EqToggleSliderRow(
         Switch(
             checked = enabled,
             onCheckedChange = onEnabledChange,
-            thumbContent = {
-                Icon(
-                    painter = painterResource(id = if (enabled) R.drawable.check else R.drawable.close),
-                    contentDescription = null,
-                    modifier = Modifier.size(SwitchDefaults.IconSize),
-                )
-            },
+            colors =
+                SwitchDefaults.colors(
+                    checkedThumbColor = Color.White,
+                    checkedTrackColor = MaterialTheme.colorScheme.primary,
+                ),
         )
 
         Spacer(Modifier.width(12.dp))
@@ -1921,6 +2077,7 @@ private fun EqToggleSliderRow(
         Text(
             text = formatValue(value),
             style = MaterialTheme.typography.labelLarge,
+            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
             textAlign = TextAlign.End,
             modifier = Modifier.width(72.dp),
         )

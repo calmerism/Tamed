@@ -192,7 +192,20 @@ fun HomeScreen(
                 }
             }
 
-
+            // ─── Mood & Genre Chips ("Feel Good", "Romance", "Energize", etc.) ─────
+            val chips = homePage?.chips
+            if (!chips.isNullOrEmpty()) {
+                item(key = "home_chips") {
+                    ChipsRow(
+                        chips = chips.map { it to it.title },
+                        currentValue = selectedChip,
+                        onValueUpdate = { chip ->
+                            viewModel.toggleChip(chip)
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+            }
 
             // ─── Quick Picks ─────────────────────────────────────────────
             val qp = quickPicks
@@ -284,7 +297,7 @@ fun HomeScreen(
                             imageUrl = localItem.thumbnailUrl?.replace(Regex("=w\\d+-h\\d+"), "=w360-h360-l90-rj"),
                             metadata = null,
                             square = true,
-                            cardSize = 220.dp,
+                            cardSize = 160.dp,
                             onClick = {
                                 when (localItem) {
                                     is Song -> playerConnection.playQueue(ListQueue("Keep Listening", keepList.filterIsInstance<Song>().map { it.toMediaItem() }, keepList.filterIsInstance<Song>().indexOf(localItem)))
@@ -319,7 +332,7 @@ fun HomeScreen(
                             imageUrl = song.thumbnailUrl?.replace(Regex("=w\\d+-h\\d+"), "=w360-h360-l90-rj"),
                             metadata = null,
                             square = true,
-                            cardSize = 220.dp,
+                            cardSize = 160.dp,
                             onClick = {
                                 playerConnection.playQueue(
                                     ListQueue(
@@ -377,7 +390,7 @@ fun HomeScreen(
                                     else -> null
                                 },
                                 square = true,
-                                cardSize = 220.dp,
+                                cardSize = 160.dp,
                                 onClick = {
                                     when (ytItem) {
                                         is SongItem -> {
@@ -433,7 +446,7 @@ fun HomeScreen(
                                     else -> null
                                 },
                                 square = true,
-                                cardSize = 220.dp,
+                                cardSize = 160.dp,
                                 onClick = {
                                     when (ytItem) {
                                         is SongItem -> {

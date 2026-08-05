@@ -73,6 +73,16 @@ fun buildSettingsGroups(
             items = buildList {
                 add(
                     SettingsItem(
+                        icon = painterResource(R.drawable.integration),
+                        title = "Integrations & Accounts",
+                        subtitle = "Discord Rich Presence, Spotify, stats.fm, Last.fm",
+                        accentColor = MaterialTheme.colorScheme.primary,
+                        keywords = listOf("integration", "discord", "spotify", "stats.fm", "spotistats", "lastfm", "listenbrainz", "account", "rpc"),
+                        onClick = { resetSearch(); navController.navigate("settings/integration") },
+                    )
+                )
+                add(
+                    SettingsItem(
                         icon = painterResource(R.drawable.palette),
                         title = stringResource(R.string.appearance),
                         subtitle = "Theme, fonts, and player style",
