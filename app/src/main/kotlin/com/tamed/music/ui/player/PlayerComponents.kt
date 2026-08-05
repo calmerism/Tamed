@@ -2056,7 +2056,7 @@ fun PlayerBackground(
     appleMusicLyricsBlurBackdrop: Boolean = false,
 ) {
     val context = LocalContext.current
-    val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
+    val isDark = true
     val effectiveBlurRadius = blurRadius.coerceIn(0f, 48f)
     val shouldApplyBlur = !disableBlur && effectiveBlurRadius > 0f
     Box(modifier = Modifier.fillMaxSize()) {

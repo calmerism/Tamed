@@ -1715,7 +1715,7 @@ data class Quadruple<A, B, C, D>(
     val fourth: D
 )
 
-private object Icon {
+object Icon {
     @Composable
     fun Favorite() {
         Icon(

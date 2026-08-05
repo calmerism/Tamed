@@ -495,8 +495,8 @@ fun MediaCard(
     val imageModifier = Modifier
         .then(
             if (square) {
-                if (cardSize != null) Modifier.size(cardSize)
-                else Modifier.fillMaxWidth().aspectRatio(1f)
+                val size = cardSize ?: 160.dp
+                Modifier.size(size)
             } else {
                 Modifier
                     .width(cardSize ?: if (tall) 280.dp else 168.dp)

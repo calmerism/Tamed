@@ -49,6 +49,16 @@ val SeekExtraSeconds = booleanPreferencesKey("seekExtraSeconds")
 val DisableBlurKey = booleanPreferencesKey("disableBlur")
 val BlurRadiusKey = floatPreferencesKey("blurRadius")
 val MiniPlayerLastAnchorKey = intPreferencesKey("miniPlayerLastAnchor")
+val PureBlackMiniPlayerKey = booleanPreferencesKey("pureBlackMiniPlayer")
+val MiniPlayerOutlineKey = booleanPreferencesKey("miniPlayerOutline")
+val UseNewMiniPlayerDesignKey = booleanPreferencesKey("useNewMiniPlayerDesign")
+val MiniPlayerWaveformKey = booleanPreferencesKey("mini_player_waveform")
+val MiniPlayerBackgroundStyleKey = stringPreferencesKey("miniPlayerBackgroundStyle")
+val LiquidGlassMiniPlayerEnabledKey = booleanPreferencesKey("liquidGlassMiniPlayerEnabled")
+val CropAlbumArtKey = booleanPreferencesKey("cropAlbumArt")
+val PlayerStaticColorKey = intPreferencesKey("playerStaticColor")
+val PlayerGradientStopsKey = stringPreferencesKey("playerGradientStops")
+val PlayerGradientAngleKey = floatPreferencesKey("playerGradientAngle")
 
 enum class SliderStyle {
     Standard,
@@ -223,6 +233,21 @@ val DiscordSmallImageTypeKey = stringPreferencesKey("discordSmallImageType")
 val DiscordSmallImageCustomUrlKey = stringPreferencesKey("discordSmallImageCustomUrl")
 // Activity platform (discord client platform) selection
 val DiscordActivityPlatformKey = stringPreferencesKey("discordActivityPlatform")
+
+// stats.fm Integration Keys
+val StatsFmEnabledKey = booleanPreferencesKey("statsFmEnabled")
+val StatsFmUsernameKey = stringPreferencesKey("statsFmUsername")
+val StatsFmApiKey = stringPreferencesKey("statsFmApiKey")
+val StatsFmSyncNowPlayingKey = booleanPreferencesKey("statsFmSyncNowPlaying")
+val StatsFmScrobbleCompletedKey = booleanPreferencesKey("statsFmScrobbleCompleted")
+
+// Spotify Integration Keys
+val SpotifyIntegrationEnabledKey = booleanPreferencesKey("spotifyIntegrationEnabled")
+val SpotifyUsernameKey = stringPreferencesKey("spotifyUsername")
+val SpotifyAccessTokenKey = stringPreferencesKey("spotifyAccessToken")
+val SpotifySyncPlaylistsKey = booleanPreferencesKey("spotifySyncPlaylists")
+val SpotifyImportLikedSongsKey = booleanPreferencesKey("spotifyImportLikedSongs")
+val SpotifyFetchMetadataKey = booleanPreferencesKey("spotifyFetchMetadata")
 
 val TranslatorContextsKey = stringPreferencesKey("translatorContexts")
 val TranslatorTargetLangKey = stringPreferencesKey("translatorTargetLang")
@@ -504,6 +529,8 @@ enum class PlayerBackgroundStyle {
     APPLE_MUSIC,
     LIVE_MESH,
     BACKDROP,
+    STATIC,
+    CUSTOM_GRADIENT,
 }
 
 // Keys for customized background
@@ -573,6 +600,7 @@ val RepeatModeKey = intPreferencesKey("repeatMode")
 val SearchSourceKey = stringPreferencesKey("searchSource")
 val SwipeThumbnailKey = booleanPreferencesKey("swipeThumbnail")
 val SwipeSensitivityKey = floatPreferencesKey("swipeSensitivity")
+val MiniBarTabStyleKey = booleanPreferencesKey("miniBarTabStyle")
 
 enum class SearchSource {
     LOCAL,

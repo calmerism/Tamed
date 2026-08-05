@@ -9,6 +9,7 @@
 package com.tamed.music.ui.screens
 
 import android.net.Uri
+import com.tamed.music.ui.menu.EqualizerDialog
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -158,26 +159,6 @@ fun NavGraphBuilder.navigationBuilder(
                 type = NavType.StringType
             },
         ),
-        enterTransition = {
-            fadeIn(tween(250))
-        },
-        exitTransition = {
-            if (targetState.destination.route?.startsWith("search/") == true) {
-                fadeOut(tween(200))
-            } else {
-                fadeOut(tween(200)) + slideOutHorizontally { -it / 2 }
-            }
-        },
-        popEnterTransition = {
-            if (initialState.destination.route?.startsWith("search/") == true) {
-                fadeIn(tween(250))
-            } else {
-                fadeIn(tween(250)) + slideInHorizontally { -it / 2 }
-            }
-        },
-        popExitTransition = {
-            fadeOut(tween(200))
-        },
     ) {
         OnlineSearchResult(navController)
     }
@@ -351,6 +332,12 @@ fun NavGraphBuilder.navigationBuilder(
     composable("settings/integration") {
         IntegrationScreen(navController, scrollBehavior)
     }
+    composable("settings/statsfm") {
+        com.tamed.music.ui.screens.settings.StatsFmSettings(navController, scrollBehavior)
+    }
+    composable("settings/spotify") {
+        com.tamed.music.ui.screens.settings.SpotifySettings(navController, scrollBehavior)
+    }
     composable("settings/music_together") {
         MusicTogetherScreen(navController, scrollBehavior)
     }
@@ -380,6 +367,12 @@ fun NavGraphBuilder.navigationBuilder(
     }
     composable("customize_background") {
         CustomizeBackground(navController)
+    }
+    composable("equalizer") {
+        EqualizerDialog(
+            onDismiss = { navController.popBackStack() },
+            openSystemEqualizer = {},
+        )
     }
     composable(
         route = "$LOGIN_ROUTE?$LOGIN_URL_ARGUMENT={$LOGIN_URL_ARGUMENT}",

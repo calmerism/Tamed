@@ -253,23 +253,9 @@ fun BottomSheetPlayer(
 
     val isSystemInDarkTheme = isSystemInDarkTheme()
     val darkTheme by rememberEnumPreference(DarkModeKey, defaultValue = DarkMode.AUTO)
-    val useDarkTheme = remember(darkTheme, isSystemInDarkTheme) {
-        if (darkTheme == DarkMode.AUTO) isSystemInDarkTheme else darkTheme == DarkMode.ON
-    }
-    val onBackgroundColor = when (playerBackground) {
-        PlayerBackgroundStyle.DEFAULT -> MaterialTheme.colorScheme.secondary
-        else ->
-            if (useDarkTheme)
-                MaterialTheme.colorScheme.onSurface
-            else
-                MaterialTheme.colorScheme.onPrimary
-    }
-    val useBlackBackground =
-        remember(isSystemInDarkTheme, darkTheme, pureBlack) {
-            val useDarkTheme =
-                if (darkTheme == DarkMode.AUTO) isSystemInDarkTheme else darkTheme == DarkMode.ON
-            useDarkTheme && pureBlack
-        }
+    val useDarkTheme = true
+    val onBackgroundColor = Color.White
+    val useBlackBackground = pureBlack
     val backgroundColor = if (useBlackBackground && state.value > state.collapsedBound) {
         val progress = ((state.value - state.collapsedBound) / (state.expandedBound - state.collapsedBound))
             .coerceIn(0f, 1f)
@@ -298,12 +284,14 @@ fun BottomSheetPlayer(
 
     val sliderStyle by rememberEnumPreference(SliderStyleKey, SliderStyle.Standard)
 
-    var position by rememberSaveable(mediaMetadata?.id) {
+    val positionState = rememberSaveable(mediaMetadata?.id) {
         mutableLongStateOf(playerConnection.player.currentPosition)
     }
-    var duration by rememberSaveable(mediaMetadata?.id) {
+    var position by positionState
+    val durationState = rememberSaveable(mediaMetadata?.id) {
         mutableLongStateOf(playerConnection.player.duration)
     }
+    var duration by durationState
     var sliderPosition by remember(mediaMetadata?.id) {
         mutableStateOf<Long?>(null)
     }
@@ -396,31 +384,9 @@ fun BottomSheetPlayer(
     val changeBound = state.expandedBound / 3
     val useAppleSheet = false
 
-    val TextBackgroundColor =
-        if (playerDesignStyle == PlayerDesignStyle.V7) {
-            if (useDarkTheme) Color.White else MaterialTheme.colorScheme.onBackground
-        } else when (playerBackground) {
-            PlayerBackgroundStyle.DEFAULT -> MaterialTheme.colorScheme.onBackground
-            else -> if (useDarkTheme) Color.White else MaterialTheme.colorScheme.onBackground
-        }
-
-    val icBackgroundColor =
-        if (playerDesignStyle == PlayerDesignStyle.V7) {
-            if (useDarkTheme) Color.Black else MaterialTheme.colorScheme.surfaceContainerHigh
-        } else when (playerBackground) {
-            PlayerBackgroundStyle.DEFAULT -> MaterialTheme.colorScheme.surface
-            else -> if (useDarkTheme) Color.Black else MaterialTheme.colorScheme.surfaceContainerHigh
-        }
-
-    val (textButtonColor, iconButtonColor) = when (playerButtonsStyle) {
-        PlayerButtonsStyle.DEFAULT -> Pair(TextBackgroundColor, icBackgroundColor)
-        PlayerButtonsStyle.SECONDARY -> Pair(
-            MaterialTheme.colorScheme.secondary,
-            MaterialTheme.colorScheme.onSecondary
-        )
-    }.let { (tb, ib) ->
-        if (playerDesignStyle == PlayerDesignStyle.V7) Pair(Color.White, Color.Black) else Pair(tb, ib)
-    }
+    val TextBackgroundColor = Color.White
+    val icBackgroundColor = Color.Black
+    val (textButtonColor, iconButtonColor) = Pair(Color.White, Color.Black)
 
     val download by LocalDownloadUtil.current.getDownload(mediaMetadata?.id ?: "")
         .collectAsState(initial = null)
@@ -681,7 +647,7 @@ fun BottomSheetPlayer(
                 else -> false
             }
         },
-        backgroundColor = if (playerDesignStyle == PlayerDesignStyle.V7) {
+        backgroundColor = run {
             val progress = ((state.value - state.collapsedBound) / (state.expandedBound - state.collapsedBound))
                 .coerceIn(0f, 1f)
             val fadeProgress = if (progress < 0.2f) {
@@ -690,50 +656,14 @@ fun BottomSheetPlayer(
                 0f
             }
             Color.Black.copy(alpha = 1f - fadeProgress)
-        } else when (playerBackground) {
-            PlayerBackgroundStyle.BLUR, PlayerBackgroundStyle.GRADIENT -> {
-                // Apply same enhanced fade logic to blur/gradient backgrounds
-                val progress = ((state.value - state.collapsedBound) / (state.expandedBound - state.collapsedBound))
-                    .coerceIn(0f, 1f)
-                
-                // Only start fading when very close to dismissal (last 20%)
-                val fadeProgress = if (progress < 0.2f) {
-                    ((0.2f - progress) / 0.2f).coerceIn(0f, 1f)
-                } else {
-                    0f
-                }
-                
-                MaterialTheme.colorScheme.surface.copy(alpha = 1f - fadeProgress)
-            }
-            else -> {
-                // Enhanced background - stable until last 20% of drag (both normal and pure black)
-                // Calculate progress for fade effect
-                val progress = ((state.value - state.collapsedBound) / (state.expandedBound - state.collapsedBound))
-                    .coerceIn(0f, 1f)
-                
-                // Only start fading when very close to dismissal (last 20%)
-                val fadeProgress = if (progress < 0.2f) {
-                    ((0.2f - progress) / 0.2f).coerceIn(0f, 1f)
-                } else {
-                    0f
-                }
-                
-                if (useBlackBackground) {
-                    // Apply same logic to pure black background
-                    Color.Black.copy(alpha = 1f - fadeProgress)
-                } else {
-                    // Apply same logic to normal theme
-                    MaterialTheme.colorScheme.surface.copy(alpha = 1f - fadeProgress)
-                }
-            }
         },
         onDismiss = {
             playerConnection.service.stopAndClearPlayback()
         },
         collapsedContent = {
             MiniPlayer(
-                position = position,
-                duration = duration,
+                position = positionState.longValue,
+                duration = durationState.longValue,
                 pureBlack = pureBlack,
             )
         },

@@ -72,7 +72,7 @@ fun <E> ChipsRow(
             .padding(vertical = 8.dp)
             .horizontalScroll(rememberScrollState()),
     ) {
-        Spacer(Modifier.width(16.dp))
+        Spacer(Modifier.width(20.dp))
 
         chips.forEach { (value, label) ->
             val isSelected = currentValue == value
