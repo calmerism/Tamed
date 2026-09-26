@@ -1,0 +1,462 @@
+/*
+ * Tamed Project (2026)
+ * Original project contributors
+ * Licensed Under GPL-3.0 | see git history for contributors
+ */
+
+
+
+package com.tamed.music.ui.screens
+
+import android.net.Uri
+import com.tamed.music.ui.menu.EqualizerDialog
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.Lifecycle
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import com.tamed.music.R
+import com.tamed.music.constants.DarkModeKey
+import com.tamed.music.constants.PureBlackKey
+import com.tamed.music.ui.component.BottomSheet
+import com.tamed.music.ui.component.BottomSheetMenu
+import com.tamed.music.ui.component.LocalMenuState
+import com.tamed.music.ui.component.rememberBottomSheetState
+import com.tamed.music.ui.screens.BrowseScreen
+import com.tamed.music.ui.screens.artist.ArtistAlbumsScreen
+import com.tamed.music.ui.screens.artist.ArtistItemsScreen
+import com.tamed.music.ui.screens.artist.ArtistScreen
+import com.tamed.music.ui.screens.artist.ArtistSongsScreen
+import com.tamed.music.ui.screens.library.LibraryScreen
+import com.tamed.music.ui.screens.playlist.AutoPlaylistScreen
+import com.tamed.music.ui.screens.playlist.LocalPlaylistScreen
+import com.tamed.music.ui.screens.playlist.OnlinePlaylistScreen
+import com.tamed.music.ui.screens.playlist.TopPlaylistScreen
+import com.tamed.music.ui.screens.playlist.CachePlaylistScreen
+import com.tamed.music.ui.screens.search.OnlineSearchResult
+import com.tamed.music.ui.screens.search.SearchScreen
+import com.tamed.music.ui.screens.settings.AboutScreen
+import com.tamed.music.ui.screens.settings.AccountSettings
+import com.tamed.music.ui.screens.settings.AppearanceSettings
+import com.tamed.music.ui.screens.settings.CustomizeBackground
+import com.tamed.music.ui.screens.settings.BackupAndRestore
+import com.tamed.music.ui.screens.settings.ChangelogScreen
+import com.tamed.music.ui.screens.settings.ContentSettings
+import com.tamed.music.ui.screens.settings.SourcesSettings
+import com.tamed.music.ui.screens.settings.DarkMode
+import com.tamed.music.ui.screens.settings.DiscordLoginScreen
+import com.tamed.music.ui.screens.settings.DiscordSettings
+import com.tamed.music.ui.screens.settings.DebugSettings
+import com.tamed.music.ui.screens.settings.IntegrationScreen
+import com.tamed.music.ui.screens.settings.LastFMSettings
+import com.tamed.music.ui.screens.settings.MusicTogetherScreen
+import com.tamed.music.ui.screens.settings.PalettePickerScreen
+import com.tamed.music.ui.screens.settings.PlayerSettings
+
+import com.tamed.music.ui.screens.settings.PoTokenScreen
+import com.tamed.music.ui.screens.settings.PrivacySettings
+import com.tamed.music.ui.screens.settings.SettingsScreen
+import com.tamed.music.ui.screens.settings.ShuffleSettingsScreen
+import com.tamed.music.ui.screens.settings.StorageSettings
+import com.tamed.music.ui.screens.settings.ThemeCreatorScreen
+import com.tamed.music.ui.screens.settings.UpdateScreen
+import com.tamed.music.ui.screens.musicrecognition.MusicRecognitionRoute
+import com.tamed.music.ui.screens.musicrecognition.MusicRecognitionScreen
+import com.tamed.music.ui.utils.ShowMediaInfo
+import com.tamed.music.utils.rememberEnumPreference
+import com.tamed.music.utils.rememberPreference
+
+@OptIn(ExperimentalMaterial3Api::class)
+fun NavGraphBuilder.navigationBuilder(
+    navController: NavHostController,
+    scrollBehavior: TopAppBarScrollBehavior,
+    latestVersionName: String,
+) {
+    composable(Screens.Home.route) {
+        HomeScreen(navController)
+    }
+    composable(Screens.Explore.route) {
+        ExploreScreen(navController)
+    }
+    composable(Screens.Search.route) {
+        SearchScreen(navController)
+    }
+    composable(
+        Screens.Library.route,
+    ) {
+        LibraryScreen(navController)
+    }
+    composable("history") {
+        HistoryScreen(navController)
+    }
+    composable("stats") {
+        StatsScreen(navController)
+    }
+    composable("year_in_music") {
+        YearInMusicScreen(navController)
+    }
+    composable(MusicRecognitionRoute) {
+        MusicRecognitionScreen(navController)
+    }
+    composable("shuffle_settings") {
+        ShuffleSettingsScreen(navController)
+    }
+    composable(Screens.MoodAndGenres.route) {
+        MoodAndGenresScreen(navController)
+    }
+    composable("account") {
+        AccountScreen(navController, scrollBehavior)
+    }
+    composable("charts_screen") {
+       ChartsScreen(navController)
+    }
+    composable(
+        route = "browse/{browseId}",
+        arguments = listOf(
+            navArgument("browseId") {
+                type = NavType.StringType
+            }
+        )
+    ) {
+        BrowseScreen(
+            navController,
+            scrollBehavior,
+            it.arguments?.getString("browseId")
+        )
+    }
+    composable(
+        route = "search/{query}",
+        arguments =
+        listOf(
+            navArgument("query") {
+                type = NavType.StringType
+            },
+        ),
+    ) {
+        OnlineSearchResult(navController)
+    }
+    composable(
+        route = "album/{albumId}",
+        arguments =
+        listOf(
+            navArgument("albumId") {
+                type = NavType.StringType
+            },
+        ),
+    ) {
+        AlbumScreen(navController, scrollBehavior)
+    }
+    composable(
+        route = "artist/{artistId}?name={name}&thumbnailUrl={thumbnailUrl}",
+        arguments = listOf(
+            navArgument("artistId") {
+                type = NavType.StringType
+            },
+            navArgument("name") {
+                type = NavType.StringType
+                nullable = true
+                defaultValue = null
+            },
+            navArgument("thumbnailUrl") {
+                type = NavType.StringType
+                nullable = true
+                defaultValue = null
+            },
+        ),
+    ) {
+        ArtistScreen(navController, scrollBehavior)
+    }
+    composable(
+        route = "artist/{artistId}/songs",
+        arguments =
+        listOf(
+            navArgument("artistId") {
+                type = NavType.StringType
+            },
+        ),
+    ) {
+        ArtistSongsScreen(navController, scrollBehavior)
+    }
+    composable(
+        route = "artist/{artistId}/albums",
+        arguments = listOf(
+            navArgument("artistId") {
+                type = NavType.StringType
+            }
+        )
+    ) {
+        ArtistAlbumsScreen(navController, scrollBehavior)
+    }
+    composable(
+        route = "artist/{artistId}/items?browseId={browseId}&params={params}",
+        arguments =
+        listOf(
+            navArgument("artistId") {
+                type = NavType.StringType
+            },
+            navArgument("browseId") {
+                type = NavType.StringType
+                nullable = true
+            },
+            navArgument("params") {
+                type = NavType.StringType
+                nullable = true
+            },
+        ),
+    ) {
+        ArtistItemsScreen(navController, scrollBehavior)
+    }
+    composable(
+        route = "online_playlist/{playlistId}",
+        arguments =
+        listOf(
+            navArgument("playlistId") {
+                type = NavType.StringType
+            },
+        ),
+    ) {
+        OnlinePlaylistScreen(navController, scrollBehavior)
+    }
+    composable(
+        route = "local_playlist/{playlistId}",
+        arguments =
+        listOf(
+            navArgument("playlistId") {
+                type = NavType.StringType
+            },
+        ),
+    ) {
+        LocalPlaylistScreen(navController, scrollBehavior)
+    }
+    composable(
+        route = "auto_playlist/{playlist}",
+        arguments =
+        listOf(
+            navArgument("playlist") {
+                type = NavType.StringType
+            },
+        ),
+    ) {
+        AutoPlaylistScreen(navController, scrollBehavior)
+    }
+    composable(
+        route = "cache_playlist/{playlist}",
+        arguments =
+            listOf(
+                navArgument("playlist") {
+                    type = NavType.StringType
+            },
+        ),
+    ) {
+        CachePlaylistScreen(navController, scrollBehavior)
+    }
+    composable(
+        route = "top_playlist/{top}",
+        arguments =
+        listOf(
+            navArgument("top") {
+                type = NavType.StringType
+            },
+        ),
+    ) {
+        TopPlaylistScreen(navController, scrollBehavior)
+    }
+    composable(
+        route = "youtube_browse/{browseId}?params={params}",
+        arguments =
+        listOf(
+            navArgument("browseId") {
+                type = NavType.StringType
+                nullable = true
+            },
+            navArgument("params") {
+                type = NavType.StringType
+                nullable = true
+            },
+        ),
+    ) {
+        YouTubeBrowseScreen(navController)
+    }
+    composable("settings") {
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            SettingsScreen(navController, scrollBehavior, latestVersionName)
+        }
+    }
+    composable("settings/account") {
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            AccountSettings(navController, scrollBehavior, latestVersionName)
+        }
+    }
+    composable("settings/appearance") {
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            AppearanceSettings(navController, scrollBehavior)
+        }
+    }
+    composable("settings/appearance/canvas") {
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            com.tamed.music.ui.screens.settings.CanvasSelection(navController, scrollBehavior)
+        }
+    }
+    composable("settings/appearance/palette_picker") {
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            PalettePickerScreen(navController)
+        }
+    }
+    composable("settings/appearance/theme_creator") {
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            ThemeCreatorScreen(navController)
+        }
+    }
+
+    composable("settings/content") {
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            ContentSettings(navController, scrollBehavior)
+        }
+    }
+    composable("settings/player") {
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            PlayerSettings(navController, scrollBehavior)
+        }
+    }
+    composable("settings/sources") {
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            SourcesSettings(navController, scrollBehavior)
+        }
+    }
+    composable("settings/storage") {
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            StorageSettings(navController, scrollBehavior)
+        }
+    }
+    composable("settings/privacy") {
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            PrivacySettings(navController, scrollBehavior)
+        }
+    }
+    composable("settings/backup_restore") {
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            BackupAndRestore(navController, scrollBehavior)
+        }
+    }
+    composable("settings/discord") {
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            DiscordSettings(navController, scrollBehavior)
+        }
+    }
+    composable("settings/integration") {
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            IntegrationScreen(navController, scrollBehavior)
+        }
+    }
+    composable("settings/statsfm") {
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            com.tamed.music.ui.screens.settings.StatsFmSettings(navController, scrollBehavior)
+        }
+    }
+    composable("settings/music_together") {
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            MusicTogetherScreen(navController, scrollBehavior)
+        }
+    }
+    composable("settings/lastfm") {
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            LastFMSettings(navController, scrollBehavior)
+        }
+    }
+    composable("settings/discord/experimental") {
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            com.tamed.music.ui.screens.settings.DiscordExperimental(navController)
+        }
+    }
+    composable("settings/misc") {
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            DebugSettings(navController)
+        }
+    }
+    composable("settings/update") {
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            UpdateScreen(navController, scrollBehavior)
+        }
+    }
+    composable("settings/changelog") {
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            ChangelogScreen(navController, scrollBehavior)
+        }
+    }
+    composable("settings/discord/login") {
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            DiscordLoginScreen(navController)
+        }
+    }
+    composable("settings/about") {
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            AboutScreen(navController, scrollBehavior)
+        }
+    }
+    composable("settings/po_token") {
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            PoTokenScreen(navController, scrollBehavior)
+        }
+    }
+    composable("customize_background") {
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+            CustomizeBackground(navController)
+        }
+    }
+    composable("equalizer") {
+        EqualizerDialog(
+            onDismiss = { navController.popBackStack() },
+            openSystemEqualizer = {},
+        )
+    }
+    composable(
+        route = "$LOGIN_ROUTE?$LOGIN_URL_ARGUMENT={$LOGIN_URL_ARGUMENT}",
+        arguments = listOf(
+            navArgument(LOGIN_URL_ARGUMENT) {
+                type = NavType.StringType
+                nullable = true
+                defaultValue = null
+            }
+        )
+    ) { backStackEntry ->
+        LoginScreen(
+            navController,
+            startUrl = backStackEntry.arguments?.getString(LOGIN_URL_ARGUMENT)?.let(Uri::decode)
+        )
+    }
+}

@@ -1,0 +1,235 @@
+/*
+ * Tamed Project (2026)
+ * Original project contributors
+ * Licensed Under GPL-3.0 | see git history for contributors
+ */
+
+
+
+package com.tamed.music.ui.screens.artist
+
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.navigation.NavController
+import com.tamed.music.LocalPlayerAwareWindowInsets
+import com.tamed.music.LocalPlayerConnection
+import com.tamed.music.R
+import com.tamed.music.constants.CONTENT_TYPE_ALBUM
+import com.tamed.music.constants.CONTENT_TYPE_HEADER
+import com.tamed.music.constants.GridThumbnailHeight
+import com.tamed.music.ui.component.GlassIconCircleButton
+import com.tamed.music.ui.component.IconButton
+import com.tamed.music.ui.component.LibraryAlbumGridItem
+import com.tamed.music.ui.component.LocalMenuState
+import com.tamed.music.ui.utils.backToMain
+import com.tamed.music.constants.ArtistBackgroundStyleKey
+import com.tamed.music.ui.theme.AmbientBackdrop
+import com.tamed.music.viewmodels.ArtistAlbumsViewModel
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
+
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@Composable
+fun ArtistAlbumsScreen(
+    navController: NavController,
+    scrollBehavior: TopAppBarScrollBehavior,
+    viewModel: ArtistAlbumsViewModel = hiltViewModel(),
+) {
+    val menuState = LocalMenuState.current
+    val playerConnection = LocalPlayerConnection.current ?: return
+    val isPlaying by playerConnection.isPlaying.collectAsState()
+    val mediaMetadata by playerConnection.mediaMetadata.collectAsState()
+
+    val artist by viewModel.artist.collectAsState()
+    val albums by viewModel.albums.collectAsState()
+
+    val coroutineScope = rememberCoroutineScope()
+    val lazyGridState = rememberLazyGridState()
+
+    val transparentAppBar by remember {
+        derivedStateOf {
+            lazyGridState.firstVisibleItemIndex == 0 && lazyGridState.firstVisibleItemScrollOffset < 100
+        }
+    }
+
+    var inSelectMode by rememberSaveable { mutableStateOf(false) }
+    val selection = rememberSaveable(
+        saver = listSaver<MutableList<String>, String>(
+            save = { it.toList() },
+            restore = { it.toMutableStateList() }
+        )
+    ) { mutableStateListOf() }
+    val onExitSelectionMode = {
+        inSelectMode = false
+        selection.clear()
+    }
+    if (inSelectMode) {
+        BackHandler(onBack = onExitSelectionMode)
+    }
+
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val artistThumbnail = artist?.artist?.thumbnailUrl ?: com.tamed.music.ui.theme.BackdropCache.get(viewModel.artistId)
+    LaunchedEffect(artistThumbnail) {
+        if (artistThumbnail != null) {
+            com.tamed.music.ui.theme.BackdropCache.put(viewModel.artistId, artistThumbnail)
+        }
+    }
+
+    AmbientBackdrop(
+        modifier = Modifier.fillMaxSize(),
+        thumbnailUrl = artistThumbnail,
+        forceStyle = com.tamed.music.constants.HomeBackgroundStyle.BACKDROP
+    ) {
+        val statusBarTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+        val playerAwarePadding = LocalPlayerAwareWindowInsets.current.asPaddingValues()
+        val layoutDirection = LocalLayoutDirection.current
+        val contentPadding = remember(playerAwarePadding, statusBarTop, layoutDirection) {
+            androidx.compose.foundation.layout.PaddingValues(
+                start = playerAwarePadding.calculateStartPadding(layoutDirection) + 12.dp,
+                top = statusBarTop + 68.dp,
+                end = playerAwarePadding.calculateEndPadding(layoutDirection) + 12.dp,
+                bottom = playerAwarePadding.calculateBottomPadding() + 120.dp
+            )
+        }
+
+        LazyVerticalGrid(
+            state = lazyGridState,
+            columns = GridCells.Adaptive(minSize = GridThumbnailHeight + 24.dp),
+            contentPadding = contentPadding
+        ) {
+            item(
+                key = "header",
+                span = { GridItemSpan(maxLineSpan) },
+                contentType = CONTENT_TYPE_HEADER
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                ) {
+                    Spacer(Modifier.weight(1f))
+
+                    Text(
+                        text = pluralStringResource(R.plurals.n_album, albums.size, albums.size),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                }
+            }
+
+            items(
+                items = albums.distinctBy { it.id },
+                key = { it.id },
+                contentType = { CONTENT_TYPE_ALBUM }
+            ) { album ->
+                LibraryAlbumGridItem(
+                    navController = navController,
+                    menuState = menuState,
+                    coroutineScope = coroutineScope,
+                    album = album,
+                    isActive = album.id == mediaMetadata?.album?.id,
+                    isPlaying = isPlaying,
+                    modifier = Modifier.animateItem()
+                )
+            }
+        }
+
+        val appBarAlpha by animateFloatAsState(
+            targetValue = if (transparentAppBar) 0f else 1f,
+            animationSpec = tween(durationMillis = 200),
+            label = "appBarAlpha"
+        )
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            Color(0xFF0F0F11).copy(alpha = appBarAlpha * 0.85f),
+                            Color(0xFF0F0F11).copy(alpha = appBarAlpha * 0.40f),
+                            Color.Transparent
+                        )
+                    )
+                )
+                .padding(horizontal = 20.dp)
+                .padding(
+                    top = statusBarTop + 8.dp,
+                    bottom = 12.dp
+                )
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                GlassIconCircleButton(
+                    iconRes = R.drawable.arrow_back,
+                    contentDescription = stringResource(R.string.back_button_desc),
+                    onClick = navController::navigateUp,
+                    solid = false,
+                )
+            }
+        }
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .windowInsetsPadding(LocalPlayerAwareWindowInsets.current)
+                .align(Alignment.BottomCenter)
+        )
+    }
+}
